@@ -1,0 +1,60 @@
+name: Build & Release
+
+# Tag a commit with e.g. v2.1.1 and push the tag to build the installable
+# plugin ZIP and publish it as a GitHub Release. WordPress then offers the
+# update automatically (see the self-updater in includes/class-updater.php).
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Derive version from tag
+        id: ver
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Stage plugin files
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.ver.outputs.version }}"
+          SLUG="health-endpoint"
+          mkdir -p "build/${SLUG}"
+
+          rsync -a ./ "build/${SLUG}/" \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude '.gitignore' \
+            --exclude '.gitattributes' \
+            --exclude 'build'
+
+          # Force the version in the artifact to match the tag (single source of truth).
+          sed -i -E "s/^( \* Version:[[:space:]]*).*/\1${VERSION}/" "build/${SLUG}/health-endpoint.php"
+          sed -i -E "s/(HEALTH_ENDPOINT_VERSION', ')[^']*/\1${VERSION}/" "build/${SLUG}/health-endpoint.php"
+
+          # Sanity check that the header now matches the tag.
+          grep -q " \* Version:[[:space:]]*${VERSION}\$" "build/${SLUG}/health-endpoint.php"
+
+      - name: Create ZIP
+        run: |
+          set -euo pipefail
+          cd build
+          zip -r "../health-endpoint.zip" "health-endpoint" >/dev/null
+          cd ..
+          ls -l health-endpoint.zip
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Health Endpoint ${{ steps.ver.outputs.version }}
+          generate_release_notes: true
+          files: health-endpoint.zip

@@ -1,0 +1,176 @@
+/* Health Endpoint — admin page styling (ProjectMakers) */
+
+.he-wrap {
+	max-width: 1080px;
+}
+
+.he-header {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 20px 24px;
+	margin: 16px 0 20px;
+	border-radius: 14px;
+	color: #fff;
+	background: linear-gradient(120deg, #1f2a44 0%, #2d3f6b 55%, #3b5bdb 100%);
+	box-shadow: 0 6px 20px rgba(31, 42, 68, 0.18);
+}
+
+.he-header .dashicons-heart {
+	font-size: 34px;
+	width: 34px;
+	height: 34px;
+	color: #ff6b81;
+	flex: 0 0 auto;
+}
+
+.he-header h1 {
+	color: #fff;
+	margin: 0;
+	padding: 0;
+	font-size: 22px;
+	line-height: 1.2;
+}
+
+.he-header .he-sub {
+	margin: 4px 0 0;
+	color: rgba(255, 255, 255, 0.82);
+	font-size: 13px;
+}
+
+.he-header .he-sub a {
+	color: #fff;
+	text-decoration: underline;
+}
+
+.he-header .he-version {
+	margin-left: auto;
+	align-self: flex-start;
+	font-size: 12px;
+	font-weight: 600;
+	background: rgba(255, 255, 255, 0.16);
+	padding: 4px 10px;
+	border-radius: 999px;
+}
+
+.he-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 18px;
+}
+
+.he-card {
+	background: #fff;
+	border: 1px solid #e2e4e9;
+	border-radius: 12px;
+	padding: 18px 20px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.he-card-wide {
+	grid-column: 1 / -1;
+}
+
+.he-card h2 {
+	margin: 0 0 12px;
+	font-size: 15px;
+	padding: 0;
+}
+
+.he-status {
+	margin: 0;
+}
+
+.he-status li {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 7px 0;
+	border-bottom: 1px solid #f0f1f4;
+	margin: 0;
+}
+
+.he-status li:last-child {
+	border-bottom: 0;
+}
+
+.he-dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 50%;
+	flex: 0 0 auto;
+	background: #9aa2ad;
+}
+
+.he-dot.is-ok {
+	background: #2fb344;
+	box-shadow: 0 0 0 3px rgba(47, 179, 68, 0.15);
+}
+
+.he-dot.is-bad {
+	background: #e03131;
+	box-shadow: 0 0 0 3px rgba(224, 49, 49, 0.15);
+}
+
+.he-status .he-label {
+	font-weight: 600;
+	min-width: 140px;
+}
+
+.he-status .he-val {
+	color: #3c434a;
+}
+
+.he-muted {
+	color: #6b7280;
+	font-size: 12px;
+}
+
+.he-endpoints {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.he-endpoints th {
+	text-align: left;
+	width: 160px;
+	padding: 6px 8px 6px 0;
+	font-weight: 600;
+	vertical-align: top;
+	white-space: nowrap;
+}
+
+.he-endpoints td {
+	padding: 6px 0;
+}
+
+.he-endpoints code {
+	background: #f6f7f9;
+	padding: 3px 7px;
+	border-radius: 6px;
+	font-size: 12px;
+	word-break: break-all;
+}
+
+.he-inline {
+	display: inline-block;
+	margin-top: 10px;
+}
+
+.he-footer {
+	margin: 22px 0 8px;
+	padding-top: 14px;
+	border-top: 1px solid #e2e4e9;
+	color: #6b7280;
+	font-size: 12px;
+}
+
+.he-footer a {
+	text-decoration: none;
+}
+
+@media screen and (max-width: 782px) {
+	.he-grid {
+		grid-template-columns: 1fr;
+	}
+}
