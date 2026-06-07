@@ -35,28 +35,28 @@ The WordPress.org-facing plugin name starts with `ProjectMakers` to avoid a gene
 - Email alerts with sustained-threshold detection, cooldown, and recovery notifications.
 - Admin page for live status, endpoint URLs, monitoring settings, diagnostics token, and token generation.
 - Optional `db-error.php` drop-in for consistent health responses when the database is unavailable during WordPress bootstrap.
-- Translation-ready WordPress strings through the `health-endpoint` text domain.
+- Translation-ready WordPress strings through the `projectmakers-health-endpoint` text domain.
 
 ## Installation
 
-This plugin is a normal WordPress plugin directory named `health-endpoint`.
+This plugin is a normal WordPress plugin directory named `projectmakers-health-endpoint`.
 
 ### Option A: Install a Release ZIP
 
-Download `health-endpoint.zip` from the [GitHub Releases](https://github.com/ProjectMakersDE/wp-health-endpoint/releases), then upload it in WordPress under **Plugins > Add New > Upload Plugin**.
+Download `projectmakers-health-endpoint.zip` from the [GitHub Releases](https://github.com/ProjectMakersDE/wp-health-endpoint/releases), then upload it in WordPress under **Plugins > Add New > Upload Plugin**.
 
 ### Option B: Install by SFTP or SSH
 
-Copy the plugin directory to `wp-content/plugins/health-endpoint/`, then activate it in WordPress.
+Copy the plugin directory to `wp-content/plugins/projectmakers-health-endpoint/`, then activate it in WordPress.
 
 ```bash
-rsync -a health-endpoint/ user@server:/var/www/example-site/wp-content/plugins/health-endpoint/
+rsync -a projectmakers-health-endpoint/ user@server:/var/www/example-site/wp-content/plugins/projectmakers-health-endpoint/
 ```
 
 ### Option C: Install with WP-CLI
 
 ```bash
-wp plugin install https://github.com/ProjectMakersDE/wp-health-endpoint/releases/latest/download/health-endpoint.zip --activate
+wp plugin install https://github.com/ProjectMakersDE/wp-health-endpoint/releases/latest/download/projectmakers-health-endpoint.zip --activate
 ```
 
 Activation flushes WordPress rewrite rules so `/health` works immediately. If `/health` returns `404`, save **Settings > Permalinks** once, or use the query-string or REST endpoint variants.
@@ -191,7 +191,7 @@ Example diagnostics payload:
   "db": "connected",
   "time": "2026-06-04T09:12:00+00:00",
   "detail": {
-    "plugin_version": "2.1.3",
+    "plugin_version": "2.1.4",
     "php_version": "8.4.0",
     "wp_version": "6.7",
     "object_cache": "external",
@@ -285,7 +285,7 @@ Without full-page caching, `/health` is fine.
 
 ## Translation
 
-The plugin uses WordPress internationalization functions with the `health-endpoint` text domain. English is the source language. Translation files can be added under `languages/`.
+The plugin uses WordPress internationalization functions with the `projectmakers-health-endpoint` text domain. English is the source language. Translation files can be added under `languages/`.
 
 ## Public Repository Checklist
 
@@ -299,6 +299,12 @@ Before making a fork public, verify:
 - Release ZIPs exclude `.git`, `.github`, local build output, and development-only files.
 
 ## Changelog
+
+### 2.1.4
+
+- Changed the plugin slug and text domain to `projectmakers-health-endpoint` for WordPress.org Plugin Check compatibility.
+- Updated GitHub Actions to run Plugin Check against the WordPress.org slug.
+- Updated release packaging to use the `projectmakers-health-endpoint` plugin directory.
 
 ### 2.1.3
 

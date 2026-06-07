@@ -45,7 +45,7 @@ jobs:
       - name: Stage plugin files
         run: |
           set -euo pipefail
-          SLUG="health-endpoint"
+          SLUG="projectmakers-health-endpoint"
           rm -rf build
           mkdir -p "build/${SLUG}"
 
@@ -81,11 +81,11 @@ jobs:
       - name: Install plugins
         run: |
           set -euo pipefail
-          cp -R "$GITHUB_WORKSPACE/build/health-endpoint" /tmp/wordpress/wp-content/plugins/health-endpoint
+          cp -R "$GITHUB_WORKSPACE/build/projectmakers-health-endpoint" /tmp/wordpress/wp-content/plugins/projectmakers-health-endpoint
 
           cd /tmp/wordpress
           wp plugin install plugin-check --activate --allow-root
-          wp plugin activate health-endpoint --allow-root
+          wp plugin activate projectmakers-health-endpoint --allow-root
 
       - name: Run WordPress Plugin Check
         run: |
@@ -96,9 +96,10 @@ jobs:
           wp plugin list-checks --allow-root
           wp plugin list-check-categories --allow-root
 
-          wp plugin check health-endpoint \
+          wp plugin check projectmakers-health-endpoint \
             --format=json \
             --categories=accessibility,general,performance,plugin_repo,security \
+            --slug=projectmakers-health-endpoint \
             --require=./wp-content/plugins/plugin-check/cli.php \
             --allow-root \
             > "$RUNNER_TEMP/plugin-check-results.json"

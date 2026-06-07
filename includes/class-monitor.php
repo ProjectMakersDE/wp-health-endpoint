@@ -49,7 +49,7 @@ class Monitor {
 					'interval' => (int) $seconds,
 					'display'  => sprintf(
 						/* translators: %s: interval label, e.g. "5 minutes" */
-						__( 'Every %s (Health Endpoint)', 'health-endpoint' ),
+						__( 'Every %s (Health Endpoint)', 'projectmakers-health-endpoint' ),
 						Settings::format_interval( $seconds )
 					),
 				);
@@ -196,13 +196,13 @@ class Monitor {
 		$breaches = array();
 
 		if ( $this->down_streak( $state['samples'], self::DB_CONFIRM ) ) {
-			$breaches['db'] = __( 'Database is not reachable.', 'health-endpoint' );
+			$breaches['db'] = __( 'Database is not reachable.', 'projectmakers-health-endpoint' );
 		}
 
 		if ( $disk && $this->over_streak( $state['samples'], 'disk', (int) $s['disk_threshold'], self::DISK_CONFIRM ) ) {
 			$breaches['disk'] = sprintf(
 				/* translators: 1: used %, 2: threshold %, 3: free MB */
-				__( 'Disk usage %1$s%% reached the %2$d%% limit (%3$s MB free).', 'health-endpoint' ),
+				__( 'Disk usage %1$s%% reached the %2$d%% limit (%3$s MB free).', 'projectmakers-health-endpoint' ),
 				$disk['used_pct'],
 				(int) $s['disk_threshold'],
 				number_format_i18n( $disk['free_mb'] )
@@ -212,7 +212,7 @@ class Monitor {
 		if ( $this->sustained( $state['samples'], 'cpu', (int) $s['cpu_threshold'], (int) $s['cpu_minutes'], $now ) ) {
 			$breaches['cpu'] = sprintf(
 				/* translators: 1: current %, 2: threshold %, 3: minutes */
-				__( 'CPU load %1$s%% per core has stayed above %2$d%% for ~%3$d min.', 'health-endpoint' ),
+				__( 'CPU load %1$s%% per core has stayed above %2$d%% for ~%3$d min.', 'projectmakers-health-endpoint' ),
 				$cpu ? $cpu['pct'] : '?',
 				(int) $s['cpu_threshold'],
 				(int) $s['cpu_minutes']
@@ -222,7 +222,7 @@ class Monitor {
 		if ( $this->sustained( $state['samples'], 'ram', (int) $s['ram_threshold'], (int) $s['ram_minutes'], $now ) ) {
 			$breaches['ram'] = sprintf(
 				/* translators: 1: current %, 2: threshold %, 3: minutes */
-				__( 'RAM usage %1$s%% has stayed above %2$d%% for ~%3$d min.', 'health-endpoint' ),
+				__( 'RAM usage %1$s%% has stayed above %2$d%% for ~%3$d min.', 'projectmakers-health-endpoint' ),
 				$ram ? $ram['used_pct'] : '?',
 				(int) $s['ram_threshold'],
 				(int) $s['ram_minutes']
@@ -415,10 +415,10 @@ class Monitor {
 
 	private function labels() {
 		return array(
-			'db'   => __( 'Database', 'health-endpoint' ),
-			'disk' => __( 'Disk space', 'health-endpoint' ),
-			'cpu'  => __( 'CPU load', 'health-endpoint' ),
-			'ram'  => __( 'Memory (RAM)', 'health-endpoint' ),
+			'db'   => __( 'Database', 'projectmakers-health-endpoint' ),
+			'disk' => __( 'Disk space', 'projectmakers-health-endpoint' ),
+			'cpu'  => __( 'CPU load', 'projectmakers-health-endpoint' ),
+			'ram'  => __( 'Memory (RAM)', 'projectmakers-health-endpoint' ),
 		);
 	}
 
@@ -472,7 +472,7 @@ class Monitor {
 	private function send_recovery( $recipients, $label, $since, $now ) {
 		$subject = sprintf( '[Health] %s - %s recovered', $this->site_label(), $label );
 
-		$duration = $since ? human_time_diff( $since, $now ) : __( 'unknown', 'health-endpoint' );
+		$duration = $since ? human_time_diff( $since, $now ) : __( 'unknown', 'projectmakers-health-endpoint' );
 
 		$lines = array(
 			sprintf( '%s is back to normal.', $label ),

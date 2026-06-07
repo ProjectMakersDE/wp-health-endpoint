@@ -4,7 +4,7 @@ Tags: health check, uptime, monitoring, diagnostics, cron
 Requires at least: 5.3
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 2.1.3
+Stable tag: 2.1.4
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -31,7 +31,7 @@ The public endpoint does not expose sensitive diagnostics. Extended diagnostics 
 
 == Installation ==
 
-1. Upload the plugin files to the `/wp-content/plugins/health-endpoint/` directory, or install the plugin ZIP through the WordPress Plugins screen.
+1. Upload the plugin files to the `/wp-content/plugins/projectmakers-health-endpoint/` directory, or install the plugin ZIP through the WordPress Plugins screen.
 2. Activate the plugin through the **Plugins** screen in WordPress.
 3. Open **Health** in the WordPress admin menu.
 4. Copy one of the listed endpoint URLs into your uptime monitor.
@@ -60,6 +60,11 @@ The interval is configurable. Available intervals are 1, 2, 5, 10, 15, 30, and 6
 No. The internal monitor is useful for local alerts, but an external uptime monitor is still recommended to detect complete outages.
 
 == Changelog ==
+
+= 2.1.4 =
+
+* Changed the text domain to projectmakers-health-endpoint for WordPress.org Plugin Check compatibility.
+* Updated release packaging to use the projectmakers-health-endpoint plugin directory.
 
 = 2.1.3 =
 
