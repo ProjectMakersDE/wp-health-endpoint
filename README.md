@@ -188,7 +188,7 @@ Example diagnostics payload:
   "db": "connected",
   "time": "2026-06-04T09:12:00+00:00",
   "detail": {
-    "plugin_version": "2.1.0",
+    "plugin_version": "2.1.1",
     "php_version": "8.4.0",
     "wp_version": "6.7",
     "object_cache": "external",
@@ -326,6 +326,13 @@ Before making a fork public, verify:
 - Release ZIPs exclude `.git`, `.github`, local build output, and development-only files.
 
 ## Changelog
+
+### 2.1.1
+
+- Prepared the repository for public open-source release.
+- Rewrote public documentation in English with generic examples.
+- Added WordPress translation metadata and a POT template.
+- Cleaned public-facing descriptions and security guidance.
 
 ### 2.1.0
 

@@ -5,7 +5,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Health Endpoint 2.1.0\n"
+"Project-Id-Version: Health Endpoint 2.1.1\n"
 "Report-Msgid-Bugs-To: https://github.com/ProjectMakersDE/wp-health-endpoint/"
 "issues\n"
 "POT-Creation-Date: 2026-06-07 15:16+0200\n"

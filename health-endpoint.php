@@ -3,7 +3,7 @@
  * Plugin Name: Health Endpoint
  * Plugin URI:  https://github.com/ProjectMakersDE/wp-health-endpoint
  * Description: Lightweight public health/uptime endpoint plus internal server monitoring (DB, disk, CPU, RAM) with email alerts, token-protected diagnostics, and GitHub-based auto-updates.
- * Version:     2.1.0
+ * Version:     2.1.1
  * Author:      ProjectMakers
  * Author URI:  https://projectmakers.de
  * License:     GPLv3
@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HEALTH_ENDPOINT_VERSION', '2.1.0' );
+define( 'HEALTH_ENDPOINT_VERSION', '2.1.1' );
 define( 'HEALTH_ENDPOINT_FILE', __FILE__ );
 define( 'HEALTH_ENDPOINT_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HEALTH_ENDPOINT_URL', plugin_dir_url( __FILE__ ) );
