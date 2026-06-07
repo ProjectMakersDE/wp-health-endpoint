@@ -69,7 +69,6 @@ jobs:
             --dbpass=root \
             --dbhost=127.0.0.1:3306 \
             --allow-root
-          wp db create --allow-root
           wp core install \
             --url=http://localhost \
             --title="Plugin Check" \
