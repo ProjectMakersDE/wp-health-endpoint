@@ -45,7 +45,7 @@ function check_db() {
 		}
 
 		if ( $ok ) {
-			$ok = ( '1' === (string) $wpdb->get_var( 'SELECT 1' ) );
+			$ok = ( '1' === (string) $wpdb->get_var( 'SELECT 1' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		}
 
 		if ( null !== $prev_suppress ) {

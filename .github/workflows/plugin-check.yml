@@ -105,6 +105,40 @@ jobs:
 
           cat "$RUNNER_TEMP/plugin-check-results.json"
 
+          php <<'PHP'
+          <?php
+          $result_file = getenv( 'RUNNER_TEMP' ) . '/plugin-check-results.json';
+          $lines       = file( $result_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES );
+          $errors      = 0;
+
+          foreach ( $lines as $line ) {
+              $line = trim( $line );
+
+              if ( '' === $line || '[' !== $line[0] ) {
+                  continue;
+              }
+
+              $items = json_decode( $line, true );
+
+              if ( ! is_array( $items ) ) {
+                  continue;
+              }
+
+              foreach ( $items as $item ) {
+                  if ( isset( $item['type'] ) && 'ERROR' === $item['type'] ) {
+                      ++$errors;
+                  }
+              }
+          }
+
+          if ( $errors > 0 ) {
+              fwrite( STDERR, "Plugin Check reported {$errors} error(s).\n" );
+              exit( 1 );
+          }
+
+          fwrite( STDOUT, "Plugin Check reported no errors.\n" );
+          PHP
+
       - name: Upload Plugin Check results
         if: ${{ always() }}
         uses: actions/upload-artifact@v4

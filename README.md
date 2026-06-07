@@ -17,7 +17,6 @@ The WordPress.org-facing plugin name starts with `ProjectMakers` to avoid a gene
 - [Internal Monitoring and Email Alerts](#internal-monitoring-and-email-alerts)
 - [Real Cron Setup](#real-cron-setup)
 - [Token-Protected Diagnostics](#token-protected-diagnostics)
-- [GitHub Release Updates](#github-release-updates)
 - [HTTP Status Codes](#http-status-codes)
 - [Configuration](#configuration)
 - [Security](#security)
@@ -35,7 +34,6 @@ The WordPress.org-facing plugin name starts with `ProjectMakers` to avoid a gene
 - Optional internal WP-Cron monitoring for database, disk, CPU, and RAM with a configurable check interval.
 - Email alerts with sustained-threshold detection, cooldown, and recovery notifications.
 - Admin page for live status, endpoint URLs, monitoring settings, diagnostics token, and token generation.
-- GitHub Releases based self-updater for the public ProjectMakers release repository.
 - Optional `db-error.php` drop-in for consistent health responses when the database is unavailable during WordPress bootstrap.
 - Translation-ready WordPress strings through the `health-endpoint` text domain.
 
@@ -62,6 +60,8 @@ wp plugin install https://github.com/ProjectMakersDE/wp-health-endpoint/releases
 ```
 
 Activation flushes WordPress rewrite rules so `/health` works immediately. If `/health` returns `404`, save **Settings > Permalinks** once, or use the query-string or REST endpoint variants.
+
+GitHub release ZIPs are installable packages only. The plugin does not include a custom updater; WordPress.org-hosted installs update through the normal WordPress.org plugin update flow after directory submission.
 
 ## Admin Page
 
@@ -210,25 +210,6 @@ Example diagnostics payload:
 }
 ```
 
-## GitHub Release Updates
-
-The plugin can update itself from GitHub Releases without wordpress.org.
-
-Release workflow:
-
-1. Tag a new version and push the tag.
-
-   ```bash
-   git tag v2.1.3
-   git push origin v2.1.3
-   ```
-
-2. The included GitHub Action builds `health-endpoint.zip`.
-3. The action publishes the ZIP as a GitHub Release asset.
-4. WordPress detects the release during its normal update checks and offers the update in **Plugins** and **Dashboard > Updates**.
-
-No GitHub token is required. The plugin checks the public ProjectMakers release repository and downloads the public release ZIP asset.
-
 ## HTTP Status Codes
 
 | Code | Meaning |
@@ -259,7 +240,6 @@ Normal visitors receive a simple "Service temporarily unavailable" page.
 |---|---|
 | `HEALTH_ENDPOINT_TOKEN` | Diagnostics token. Takes precedence over the admin setting. |
 | `HEALTH_ENDPOINT_SLUG` | Pretty endpoint slug. Default: `health`. |
-| `HEALTH_ENDPOINT_GITHUB` | GitHub repository in `owner/repo` format. Default: `ProjectMakersDE/wp-health-endpoint`. |
 | `DISABLE_WP_CRON` | Disable WP-Cron when using real server cron. |
 
 ### Filters
@@ -324,11 +304,12 @@ Before making a fork public, verify:
 
 - Renamed the WordPress-facing plugin name to ProjectMakers Health Endpoint for Plugin Directory naming compliance.
 - Added a WordPress.org `readme.txt`.
-- Added a GitHub Actions workflow for WordPress Plugin Check.
+- Added a GitHub Actions workflow for WordPress Plugin Check and made it fail on Plugin Check errors.
+- Removed the custom GitHub self-updater and `Update URI` header for WordPress.org plugin compliance.
 
 ### 2.1.2
 
-- Removed GitHub token settings because updates use the public ProjectMakers release repository.
+- Removed GitHub token settings.
 - Added a configurable internal monitoring interval.
 - Added last-check duration reporting in the admin live status panel.
 - Added server-side diagnostics token generation.
@@ -348,7 +329,7 @@ Before making a fork public, verify:
 - Added configurable thresholds, sustained checks, cooldown, and optional recovery emails.
 - Added **Run check now** and **Send test email** actions.
 - Added `format=plain` for minimal `OK` or `ERROR` monitor responses.
-- Added GitHub Releases based auto-updates and release ZIP build workflow.
+- Added GitHub release ZIP build workflow.
 - Added admin-configurable diagnostics token while keeping the constant as the highest-priority source.
 - Split implementation into `includes/` classes and added uninstall cleanup.
 

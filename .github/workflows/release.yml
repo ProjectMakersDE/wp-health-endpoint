@@ -1,8 +1,7 @@
 name: Build & Release
 
 # Tag a commit with e.g. v2.1.3 and push the tag to build the installable
-# plugin ZIP and publish it as a GitHub Release. WordPress then offers the
-# update automatically (see the self-updater in includes/class-updater.php).
+# plugin ZIP and publish it as a GitHub Release.
 
 on:
   push:

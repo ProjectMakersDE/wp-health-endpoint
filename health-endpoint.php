@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ProjectMakers Health Endpoint
  * Plugin URI:  https://github.com/ProjectMakersDE/wp-health-endpoint
- * Description: Lightweight public health/uptime endpoint plus internal server monitoring (DB, disk, CPU, RAM) with email alerts, token-protected diagnostics, and GitHub-based auto-updates.
+ * Description: Lightweight public health/uptime endpoint plus internal server monitoring (DB, disk, CPU, RAM) with email alerts and token-protected diagnostics.
  * Version:     2.1.3
  * Author:      ProjectMakers
  * Author URI:  https://projectmakers.de
@@ -12,7 +12,6 @@
  * Domain Path: /languages
  * Requires PHP: 7.2
  * Requires at least: 5.3
- * Update URI:  https://github.com/ProjectMakersDE/wp-health-endpoint
  *
  * Public endpoints (all return JSON unless noted):
  *   GET /health                  -> pretty permalink (needs permalinks enabled)
@@ -39,24 +38,10 @@ define( 'HEALTH_ENDPOINT_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HEALTH_ENDPOINT_URL', plugin_dir_url( __FILE__ ) );
 define( 'HEALTH_ENDPOINT_BASENAME', plugin_basename( __FILE__ ) );
 
-// GitHub repository used by the self-updater (owner/repo). Override in wp-config.php.
-if ( ! defined( 'HEALTH_ENDPOINT_GITHUB' ) ) {
-	define( 'HEALTH_ENDPOINT_GITHUB', 'ProjectMakersDE/wp-health-endpoint' );
-}
-
 require_once HEALTH_ENDPOINT_DIR . 'includes/helpers.php';
 require_once HEALTH_ENDPOINT_DIR . 'includes/class-settings.php';
 require_once HEALTH_ENDPOINT_DIR . 'includes/class-endpoint.php';
 require_once HEALTH_ENDPOINT_DIR . 'includes/class-monitor.php';
-require_once HEALTH_ENDPOINT_DIR . 'includes/class-updater.php';
-
-/**
- * Load translation files from the plugin languages directory.
- */
-function load_textdomain() {
-	load_plugin_textdomain( 'health-endpoint', false, dirname( HEALTH_ENDPOINT_BASENAME ) . '/languages' );
-}
-add_action( 'init', __NAMESPACE__ . '\\load_textdomain' );
 
 /**
  * Wire everything up once WordPress is loaded.
@@ -64,11 +49,6 @@ add_action( 'init', __NAMESPACE__ . '\\load_textdomain' );
 function bootstrap() {
 	Endpoint::instance();
 	Monitor::instance();
-
-	// Register the updater on every request: WP-Cron and WP-CLI (where is_admin()
-	// is false) drive the background update checks. Its filters self-gate by
-	// slug/URL and the GitHub lookup is transient-cached, so this is cheap.
-	new Updater( HEALTH_ENDPOINT_FILE, HEALTH_ENDPOINT_GITHUB );
 
 	if ( is_admin() ) {
 		Settings::instance();

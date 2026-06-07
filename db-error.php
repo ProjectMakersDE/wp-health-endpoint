@@ -18,23 +18,28 @@
  * @package HealthEndpoint
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( ! headers_sent() ) {
-	header( $_SERVER['SERVER_PROTOCOL'] ?? 'HTTP/1.1', true, 503 );
+	http_response_code( 503 );
 	header( 'Status: 503 Service Unavailable' );
 	header( 'Retry-After: 30' );
 	header( 'Cache-Control: no-store, no-cache, must-revalidate, max-age=0' );
 }
 
-$uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) $_SERVER['REQUEST_URI'] : '';
+$health_endpoint_uri = filter_input( INPUT_SERVER, 'REQUEST_URI', FILTER_SANITIZE_URL );
+$health_endpoint_uri = is_string( $health_endpoint_uri ) ? $health_endpoint_uri : '';
 
-$is_health = (
-	isset( $_GET['health_check'] )
-	|| preg_match( '#/health/?(\?|$)#', $uri )
-	|| false !== strpos( $uri, '/wp-json/health/' )
-	|| false !== strpos( $uri, 'rest_route=/health/' )
+$health_endpoint_is_health = (
+	filter_has_var( INPUT_GET, 'health_check' )
+	|| preg_match( '#/health/?(\?|$)#', $health_endpoint_uri )
+	|| false !== strpos( $health_endpoint_uri, '/wp-json/health/' )
+	|| false !== strpos( $health_endpoint_uri, 'rest_route=/health/' )
 );
 
-if ( $is_health ) {
+if ( $health_endpoint_is_health ) {
 	header( 'Content-Type: application/json; charset=utf-8' );
 	echo json_encode(
 		array(

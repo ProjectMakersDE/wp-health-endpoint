@@ -97,7 +97,7 @@ class Endpoint {
 		}
 
 		if ( null === $provided || '' === $provided ) {
-			$provided = isset( $_SERVER['HTTP_X_HEALTH_TOKEN'] ) ? wp_unslash( $_SERVER['HTTP_X_HEALTH_TOKEN'] ) : '';
+			$provided = isset( $_SERVER['HTTP_X_HEALTH_TOKEN'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_HEALTH_TOKEN'] ) ) : '';
 		}
 
 		$provided = is_scalar( $provided ) ? (string) $provided : '';
@@ -189,7 +189,7 @@ class Endpoint {
 
 		// Prevent storing (cannot stop serving an already-cached page; see README).
 		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
-			define( 'DONOTCACHEPAGE', true );
+			define( 'DONOTCACHEPAGE', true ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedConstantFound
 		}
 		nocache_headers();
 
@@ -200,8 +200,10 @@ class Endpoint {
 
 		status_header( $code );
 
-		$is_head  = isset( $_SERVER['REQUEST_METHOD'] ) && 'HEAD' === strtoupper( $_SERVER['REQUEST_METHOD'] );
-		$is_plain = isset( $_GET['format'] ) && 'plain' === $_GET['format']; // phpcs:ignore WordPress.Security.NonceVerification
+		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : 'GET';
+		$format         = ( isset( $_GET['format'] ) && is_scalar( $_GET['format'] ) ) ? sanitize_text_field( wp_unslash( $_GET['format'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+		$is_head        = 'HEAD' === strtoupper( $request_method );
+		$is_plain       = 'plain' === $format;
 
 		if ( $is_plain ) {
 			header( 'Content-Type: text/plain; charset=utf-8' );

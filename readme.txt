@@ -66,6 +66,7 @@ No. The internal monitor is useful for local alerts, but an external uptime moni
 * Renamed the WordPress-facing plugin name to ProjectMakers Health Endpoint for Plugin Directory naming compliance.
 * Added a WordPress.org readme.txt.
 * Added a GitHub Actions workflow for WordPress Plugin Check.
+* Removed the custom GitHub self-updater for WordPress.org plugin compliance.
 
 = 2.1.2 =
 
@@ -89,7 +90,7 @@ No. The internal monitor is useful for local alerts, but an external uptime moni
 * Added configurable thresholds, sustained checks, cooldown, and optional recovery emails.
 * Added manual check and test email actions.
 * Added plain-text OK/ERROR monitor responses.
-* Added GitHub Releases based auto-updates and release ZIP build workflow.
+* Added GitHub release ZIP build workflow.
 
 = 2.0.0 =
 

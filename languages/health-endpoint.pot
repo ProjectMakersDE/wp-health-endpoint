@@ -340,11 +340,3 @@ msgstr[1] ""
 #, php-format
 msgid "%.2f s"
 msgstr ""
-
-#: includes/class-updater.php:188
-msgid "See GitHub releases for details."
-msgstr ""
-
-#: includes/class-updater.php:238
-msgid "Could not rename the update folder to the plugin slug."
-msgstr ""
