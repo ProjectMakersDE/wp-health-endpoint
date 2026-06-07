@@ -6,7 +6,7 @@
  * @package HealthEndpoint
  */
 
-namespace ProjectMakers\HealthEndpoint;
+namespace ProjectMakers_Health_Endpoint;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
