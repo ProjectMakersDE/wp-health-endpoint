@@ -1,0 +1,292 @@
+# Health Endpoint translation template.
+# Copyright (C) 2026 ProjectMakers
+# This file is distributed under the same license as the Health Endpoint package.
+# Translators:
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Health Endpoint 2.1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/ProjectMakersDE/wp-health-endpoint/"
+"issues\n"
+"POT-Creation-Date: 2026-06-07 15:16+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: includes/class-monitor.php:48
+msgid "Every minute (Health Endpoint)"
+msgstr ""
+
+#: includes/class-monitor.php:161
+msgid "Database is not reachable."
+msgstr ""
+
+#. translators: 1: used %, 2: threshold %, 3: free MB
+#: includes/class-monitor.php:167
+#, php-format
+msgid "Disk usage %1$s%% reached the %2$d%% limit (%3$s MB free)."
+msgstr ""
+
+#. translators: 1: current %, 2: threshold %, 3: minutes
+#: includes/class-monitor.php:177
+#, php-format
+msgid "CPU load %1$s%% per core has stayed above %2$d%% for ~%3$d min."
+msgstr ""
+
+#. translators: 1: current %, 2: threshold %, 3: minutes
+#: includes/class-monitor.php:187
+#, php-format
+msgid "RAM usage %1$s%% has stayed above %2$d%% for ~%3$d min."
+msgstr ""
+
+#: includes/class-monitor.php:375
+msgid "Database"
+msgstr ""
+
+#: includes/class-monitor.php:376
+msgid "Disk space"
+msgstr ""
+
+#: includes/class-monitor.php:377
+msgid "CPU load"
+msgstr ""
+
+#: includes/class-monitor.php:378
+msgid "Memory (RAM)"
+msgstr ""
+
+#: includes/class-monitor.php:432
+msgid "unknown"
+msgstr ""
+
+#: includes/class-settings.php:138
+msgid "Settings saved."
+msgstr ""
+
+#: includes/class-settings.php:152 includes/class-settings.php:232
+#: includes/class-settings.php:404
+msgid "Health Endpoint"
+msgstr ""
+
+#: includes/class-settings.php:153
+msgid "Health"
+msgstr ""
+
+#: includes/class-settings.php:164
+msgid "Settings"
+msgstr ""
+
+#: includes/class-settings.php:183 includes/class-settings.php:196
+msgid "Insufficient permissions."
+msgstr ""
+
+#: includes/class-settings.php:234
+msgid "Uptime endpoint & server monitoring"
+msgstr ""
+
+#. translators: %s: admin email address
+#: includes/class-settings.php:249
+#, php-format
+msgid ""
+"No alert email is set; alerts fall back to the site admin address (%s). Set "
+"a dedicated address below."
+msgstr ""
+
+#: includes/class-settings.php:260
+msgid "What this plugin does"
+msgstr ""
+
+#: includes/class-settings.php:262
+msgid ""
+"Exposes a tiny public health endpoint for uptime monitors (Uptime Kuma & "
+"co.) that only confirms WordPress and the database respond; no sensitive "
+"data is ever revealed. Optionally it monitors the server internally "
+"(database, disk, CPU, RAM) and emails you when something breaches your "
+"thresholds."
+msgstr ""
+
+#: includes/class-settings.php:267
+msgid "Live status"
+msgstr ""
+
+#: includes/class-settings.php:270
+msgid "connected"
+msgstr ""
+
+#: includes/class-settings.php:270
+msgid "down"
+msgstr ""
+
+#. translators: %s: human time diff
+#: includes/class-settings.php:280
+#, php-format
+msgid "Last internal check: %s ago"
+msgstr ""
+
+#: includes/class-settings.php:282
+msgid "Internal monitoring has not run yet."
+msgstr ""
+
+#: includes/class-settings.php:289
+msgid "Run check now"
+msgstr ""
+
+#: includes/class-settings.php:294
+msgid "Endpoints"
+msgstr ""
+
+#: includes/class-settings.php:304
+msgid ""
+"Healthy: HTTP 200 {\"status\":\"ok\"}. DB down: HTTP 503. Append a valid "
+"token for diagnostics:"
+msgstr ""
+
+#: includes/class-settings.php:305
+msgid "or header"
+msgstr ""
+
+#: includes/class-settings.php:306
+msgid "Diagnostics token is configured."
+msgstr ""
+
+#: includes/class-settings.php:306
+msgid "No token configured; diagnostics mode is off."
+msgstr ""
+
+#: includes/class-settings.php:311
+msgid "Monitoring & alerts"
+msgstr ""
+
+#: includes/class-settings.php:316
+msgid "Internal monitoring"
+msgstr ""
+
+#: includes/class-settings.php:320
+msgid "Check the server roughly every minute and alert on breaches"
+msgstr ""
+
+#: includes/class-settings.php:322
+msgid ""
+"Runs via WP-Cron. For reliable once-a-minute checks on low-traffic sites, "
+"set up a real server cron (see README)."
+msgstr ""
+
+#: includes/class-settings.php:326
+msgid "Alert email(s)"
+msgstr ""
+
+#: includes/class-settings.php:329
+msgid "Comma-separated. Alerts are sent here when a check fails."
+msgstr ""
+
+#: includes/class-settings.php:333
+msgid "Disk threshold"
+msgstr ""
+
+#: includes/class-settings.php:336
+msgid "used -> alert"
+msgstr ""
+
+#: includes/class-settings.php:340
+msgid "CPU threshold"
+msgstr ""
+
+#: includes/class-settings.php:343
+msgid "load-per-core, sustained for"
+msgstr ""
+
+#: includes/class-settings.php:345 includes/class-settings.php:354
+msgid "minute(s)"
+msgstr ""
+
+#: includes/class-settings.php:349
+msgid "RAM threshold"
+msgstr ""
+
+#: includes/class-settings.php:352
+msgid "used, sustained for"
+msgstr ""
+
+#: includes/class-settings.php:358
+msgid "Repeat-alert cooldown"
+msgstr ""
+
+#: includes/class-settings.php:361
+msgid "minute(s) between repeated alerts for the same issue"
+msgstr ""
+
+#: includes/class-settings.php:362
+msgid ""
+"Set to 0 to send a single alert per incident (no reminders until it "
+"recovers)."
+msgstr ""
+
+#: includes/class-settings.php:366
+msgid "Also send a recovery email when an issue clears"
+msgstr ""
+
+#: includes/class-settings.php:372
+msgid "Diagnostics token"
+msgstr ""
+
+#: includes/class-settings.php:375
+msgid "Defined in wp-config.php (HEALTH_ENDPOINT_TOKEN)"
+msgstr ""
+
+#: includes/class-settings.php:376
+msgid "The wp-config.php constant takes precedence over this field."
+msgstr ""
+
+#: includes/class-settings.php:379
+msgid ""
+"Unlocks the diagnostics payload. Leave empty to keep diagnostics off. For "
+"best security define HEALTH_ENDPOINT_TOKEN in wp-config.php instead."
+msgstr ""
+
+#: includes/class-settings.php:384
+msgid "GitHub token (updates)"
+msgstr ""
+
+#: includes/class-settings.php:387
+msgid ""
+"Only needed if the GitHub repo is private; use a fine-grained PAT with read "
+"access to the repo so WordPress can see and download new releases."
+msgstr ""
+
+#: includes/class-settings.php:397
+msgid "Send test email"
+msgstr ""
+
+#: includes/class-settings.php:418
+msgid "Test email sent."
+msgstr ""
+
+#: includes/class-settings.php:419
+msgid ""
+"Test email could not be sent. Check the alert address and your mailer (e.g. "
+"WP Mail SMTP)."
+msgstr ""
+
+#: includes/class-settings.php:420
+msgid "Internal check executed."
+msgstr ""
+
+#: includes/class-settings.php:443
+msgid "n/a on this host"
+msgstr ""
+
+#: includes/class-updater.php:205
+msgid "Could not download the update package from GitHub."
+msgstr ""
+
+#: includes/class-updater.php:317
+msgid "See GitHub releases for details."
+msgstr ""
+
+#: includes/class-updater.php:367
+msgid "Could not rename the update folder to the plugin slug."
+msgstr ""

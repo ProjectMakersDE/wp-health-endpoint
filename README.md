@@ -1,101 +1,101 @@
 # Health Endpoint
 
-**Health-/Uptime-Plugin für WordPress** mit interner Server-Überwachung – by [ProjectMakers](https://projectmakers.de).
+Lightweight WordPress health and uptime endpoint with optional internal server monitoring.
 
-Zwei Dinge in einem Plugin:
+Health Endpoint exposes a small public endpoint that confirms WordPress and the database are responding. It can also run internal checks for database connectivity, disk usage, CPU load, and RAM usage, then send email alerts when configured thresholds are breached.
 
-1. **Öffentlicher `/health`-Endpoint** für Uptime-Monitoring (Uptime Kuma, UptimeRobot, …) –
-   bestätigt nur, dass WordPress **und** die Datenbank antworten. **Keine sensiblen Daten.**
-2. **Internes Monitoring** (Cron, ~1×/min): prüft Datenbank, Speicherplatz, CPU-Last und RAM und
-   schickt dir eine **E-Mail**, sobald ein konfigurierbarer Schwellenwert (anhaltend) überschritten wird.
+The plugin is designed for public open-source use: public responses stay minimal, diagnostics require a token, and repository documentation uses generic examples only.
 
-Dazu eine hübsche **Admin-Seite**, ein **token-geschützter Diagnose-Modus** und
-**automatische Updates direkt aus GitHub-Releases**.
+## Contents
 
-> Einmal bauen, auf allen WordPress-Servern einsetzen.
-
----
-
-## Inhalt
-
+- [Features](#features)
 - [Installation](#installation)
-- [Admin-Seite](#admin-seite)
-- [Endpoints & externe Abfragen](#endpoints--externe-abfragen)
-- [Internes Monitoring & E-Mail-Alarme](#internes-monitoring--e-mail-alarme)
-- [Echten Cron einrichten (1×/min)](#echten-cron-einrichten-1min)
-- [Diagnose-Modus (Token)](#diagnose-modus-token)
-- [Automatische Updates aus GitHub](#automatische-updates-aus-github)
-- [HTTP-Statuscodes](#http-statuscodes)
-- [Konfiguration (Konstanten & Filter)](#konfiguration-konstanten--filter)
-- [Sicherheit](#sicherheit)
-- [Caching-Hinweise](#caching-hinweise)
+- [Admin Page](#admin-page)
+- [Endpoints](#endpoints)
+- [Internal Monitoring and Email Alerts](#internal-monitoring-and-email-alerts)
+- [Real Cron Setup](#real-cron-setup)
+- [Token-Protected Diagnostics](#token-protected-diagnostics)
+- [GitHub Release Updates](#github-release-updates)
+- [HTTP Status Codes](#http-status-codes)
+- [Configuration](#configuration)
+- [Security](#security)
+- [Caching Notes](#caching-notes)
+- [Translation](#translation)
+- [Public Repository Checklist](#public-repository-checklist)
 - [Changelog](#changelog)
 
----
+## Features
+
+- Public `/health` endpoint for uptime monitors such as Uptime Kuma or UptimeRobot.
+- Query-string and REST fallbacks for hosts where pretty permalinks are unavailable.
+- Minimal public JSON payload: `status`, `db`, and `time`.
+- Optional token-protected diagnostics payload with plugin, WordPress, PHP, database latency, disk, CPU, and RAM details.
+- Optional internal WP-Cron monitoring for database, disk, CPU, and RAM.
+- Email alerts with sustained-threshold detection, cooldown, and recovery notifications.
+- Admin page for live status, endpoint URLs, monitoring settings, diagnostics token, and updater token.
+- GitHub Releases based self-updater for public repositories and private forks.
+- Optional `db-error.php` drop-in for consistent health responses when the database is unavailable during WordPress bootstrap.
+- Translation-ready WordPress strings through the `health-endpoint` text domain.
 
 ## Installation
 
-Das Plugin ist ein normales Plugin-Verzeichnis (`health-endpoint/`).
+This plugin is a normal WordPress plugin directory named `health-endpoint`.
 
-**A) ZIP über das WP-Backend (empfohlen)**
-Lade die `health-endpoint.zip` aus den [GitHub-Releases](https://github.com/ProjectMakersDE/wp-health-endpoint/releases)
-unter **Plugins → Installieren → Plugin hochladen** hoch und aktiviere es.
+### Option A: Install a Release ZIP
 
-**B) Per SFTP/SSH**
-Kopiere den Plugin-Ordner nach `wp-content/plugins/health-endpoint/` und aktiviere ihn im Backend.
+Download `health-endpoint.zip` from the [GitHub Releases](https://github.com/ProjectMakersDE/wp-health-endpoint/releases), then upload it in WordPress under **Plugins > Add New > Upload Plugin**.
+
+### Option B: Install by SFTP or SSH
+
+Copy the plugin directory to `wp-content/plugins/health-endpoint/`, then activate it in WordPress.
 
 ```bash
-rsync -a health-endpoint/ user@server:/var/www/<site>/wp-content/plugins/health-endpoint/
+rsync -a health-endpoint/ user@server:/var/www/example-site/wp-content/plugins/health-endpoint/
 ```
 
-**C) Per WP-CLI**
+### Option C: Install with WP-CLI
 
 ```bash
 wp plugin install https://github.com/ProjectMakersDE/wp-health-endpoint/releases/latest/download/health-endpoint.zip --activate
 ```
 
-> Beim Aktivieren werden die Rewrite-Regeln automatisch neu geschrieben, damit `/health` sofort geht.
-> Falls `/health` mal 404 liefert: einmal **Einstellungen → Permalinks → Speichern** – oder die
-> Query-/REST-Variante nutzen (die brauchen keine Rewrite-Regeln).
+Activation flushes WordPress rewrite rules so `/health` works immediately. If `/health` returns `404`, save **Settings > Permalinks** once, or use the query-string or REST endpoint variants.
 
----
+## Admin Page
 
-## Admin-Seite
+After activation, WordPress shows a **Health** menu item in the admin area. The page includes:
 
-Im WP-Backend erscheint links ein Menüpunkt **„Health"** (Herz-Icon). Dort findest du:
+- Live status for database, disk usage, CPU load, and RAM usage.
+- Endpoint URLs for the current site.
+- Monitoring settings, alert recipients, thresholds, cooldown, diagnostics token, and optional GitHub token.
+- Manual **Run check now** and **Send test email** actions.
 
-- **Live-Status**: Datenbank, Speicherplatz, CPU, RAM auf einen Blick (grün/rot) + „Jetzt prüfen".
-- **Endpoints**: die konkreten URLs dieser Seite zum Kopieren.
-- **Monitoring & Alarme**: E-Mail-Adresse(n), Schwellenwerte, Dauer, Cooldown, Token, GitHub-Token.
-- **Test-E-Mail senden** zum Prüfen des Mailversands.
+## Endpoints
 
----
+All variants return the same JSON unless `format=plain` is used.
 
-## Endpoints & externe Abfragen
-
-Alle Varianten liefern dasselbe JSON. Nutze die, die zu deinem Setup passt:
-
-| Variante | URL | Voraussetzung |
+| Variant | URL | Requirement |
 |---|---|---|
-| **Pretty** | `https://example.com/health` | Permalinks aktiv |
-| **Query-Fallback** | `https://example.com/?health_check=1` | immer |
-| **REST** | `https://example.com/wp-json/health/v1/check` | immer (bei „Plain"-Permalinks: `?rest_route=/health/v1/check`) |
-| **Plain** | `…?health_check=1&format=plain` | gibt nur `OK` / `ERROR` als Text zurück |
+| Pretty | `https://example.com/health` | Pretty permalinks enabled |
+| Query fallback | `https://example.com/?health_check=1` | Always available |
+| REST | `https://example.com/wp-json/health/v1/check` | Always available |
+| REST with plain permalinks | `https://example.com/?rest_route=/health/v1/check` | Always available |
+| Plain text | `https://example.com/?health_check=1&format=plain` | Returns `OK` or `ERROR` |
 
 ```bash
-curl -i "https://example.com/?health_check=1"                       # JSON
-curl -s "https://example.com/?health_check=1&format=plain"          # -> OK
-curl -i https://example.com/wp-json/health/v1/check                 # REST
-curl -I https://example.com/health                                  # HEAD (nur Status)
+curl -i "https://example.com/?health_check=1"
+curl -s "https://example.com/?health_check=1&format=plain"
+curl -i "https://example.com/wp-json/health/v1/check"
+curl -I "https://example.com/health"
 ```
 
-**Antwort gesund (HTTP 200):**
+Healthy response, HTTP `200`:
 
 ```json
 { "status": "ok", "db": "connected", "time": "2026-06-04T09:12:00+00:00" }
 ```
 
-**Datenbank weg (HTTP 503):**
+Database unavailable during the request, HTTP `503`:
 
 ```json
 { "status": "error", "db": "down", "time": "2026-06-04T09:12:00+00:00" }
@@ -103,170 +103,181 @@ curl -I https://example.com/health                                  # HEAD (nur 
 
 ### Uptime Kuma
 
-1. **Monitor Type:** `HTTP(s)` (oder `HTTP(s) - Keyword`)
-2. **URL:** `https://example.com/?health_check=1` oder `…/wp-json/health/v1/check`
-   (diese Varianten werden von Page-Caches **nicht** gecacht – siehe [Caching](#caching-hinweise))
-3. **Request Timeout:** ≥ 10 s (Core kann bei DB-Ausfall ~5 s für Reconnect brauchen)
-4. Optional *Keyword* = `"status": "ok"`
-5. **Accepted Status Codes:** `200` (alles andere = down)
+Recommended settings:
 
----
+1. Monitor type: `HTTP(s)` or `HTTP(s) - Keyword`.
+2. URL: `https://example.com/?health_check=1` or `https://example.com/wp-json/health/v1/check`.
+3. Request timeout: at least `10` seconds.
+4. Optional keyword: `"status":"ok"` or `"status": "ok"`.
+5. Accepted status codes: `200` only.
 
-## Internes Monitoring & E-Mail-Alarme
+## Internal Monitoring and Email Alerts
 
-Auf der Admin-Seite **„Internes Monitoring" aktivieren** und eine **Alarm-E-Mail** hinterlegen.
-Dann prüft ein Cron (~1×/min) und schickt eine E-Mail, sobald:
+Enable **Internal monitoring** on the admin page and configure one or more alert email addresses. The plugin then samples the server roughly once per minute and alerts when a problem is detected.
 
-| Check | Auslöser | Konfigurierbar |
+| Check | Trigger | Configurable |
 |---|---|---|
-| **Datenbank** | nicht erreichbar | – (sofort) |
-| **Speicherplatz** | belegt ≥ Schwelle | 60/70/80/85/90/95 % |
-| **CPU** | Last/Kern ≥ Schwelle, **anhaltend** | Schwelle % + Dauer (Minuten) |
-| **RAM** | Belegung ≥ Schwelle, **anhaltend** | Schwelle % + Dauer (Minuten) |
+| Database | Unreachable | Immediate after debounce |
+| Disk | Used space at or above threshold | 60, 70, 80, 85, 90, or 95 percent |
+| CPU | Load per core at or above threshold for the configured duration | Threshold and duration |
+| RAM | Used memory at or above threshold for the configured duration | Threshold and duration |
 
-- **Anhaltend** = der Wert liegt über die eingestellte Dauer (z. B. 5 Min.) ununterbrochen über der Schwelle.
-  Dafür hält das Plugin eine kurze rollierende Historie (max. 90 Min.) – ein einzelner Spitzenwert löst also keinen Alarm aus.
-- **CPU-Wert** = 1-Minuten-Load-Average geteilt durch CPU-Kerne, als Prozent (Load 1,0 pro Kern = 100 %).
-  Auf manchen Shared-Hosts sind `sys_getloadavg`/`/proc` deaktiviert – dann wird CPU/RAM als „n/a" angezeigt und übersprungen.
-- **Cooldown**: pro Problem wird nicht öfter als alle *N* Minuten gemailt (einstellbar; `0` = genau **eine** Mail pro Vorfall, keine Wiederholung bis zur Erholung). Optional kommt eine **Recovery-Mail**, wenn sich ein Problem wieder normalisiert.
-- **Debounce**: DB- und Speicherplatz-Alarme lösen erst nach 2 aufeinanderfolgenden Messungen aus (kurze Aussetzer erzeugen keinen Mail-Spam).
+Notes:
 
-Mehrere Empfänger: kommagetrennt eintragen. Versand läuft über `wp_mail()` – für zuverlässige
-Zustellung empfiehlt sich ein SMTP-Plugin (z. B. WP Mail SMTP).
+- Sustained checks keep a short rolling history, so a single CPU or RAM spike does not trigger an alert.
+- CPU percentage is the 1-minute load average divided by detected CPU cores.
+- Some shared hosts disable `sys_getloadavg` or `/proc`; unsupported CPU/RAM metrics are shown as `n/a` and skipped.
+- Cooldown controls repeat alerts for the same problem.
+- Cooldown `0` sends one alert per incident and no reminders until recovery.
+- Recovery emails can be sent when a problem clears.
+- Database and disk alerts require consecutive failed samples to reduce noisy alerts.
 
----
+Alert delivery uses `wp_mail()`. For production sites, configure a reliable SMTP plugin or transactional email provider.
 
-## Echten Cron einrichten (1×/min)
+## Real Cron Setup
 
-WordPress-Cron läuft nur bei Seitenaufrufen. Auf wenig besuchten Seiten ist „1×/min" damit
-**nicht garantiert**. Für präzises Monitoring deshalb den WP-Cron per System-Cron antreiben und
-den eingebauten Pseudo-Cron abschalten:
+WP-Cron only runs when WordPress receives traffic. For reliable once-per-minute checks on low-traffic sites, disable the built-in pseudo cron and trigger WP-Cron from the server.
+
+In `wp-config.php`:
 
 ```php
-// wp-config.php
 define( 'DISABLE_WP_CRON', true );
 ```
 
+In the server crontab:
+
 ```cron
-# crontab -e  (jede Minute)
 * * * * * curl -s "https://example.com/wp-cron.php?doing_wp_cron" >/dev/null 2>&1
 ```
 
-Alternativ per WP-CLI: `* * * * * cd /var/www/<site> && wp cron event run --due-now >/dev/null 2>&1`
+Alternative with WP-CLI:
 
----
-
-## Diagnose-Modus (Token)
-
-Erweiterte Werte gibt es nur mit gültigem Token – ohne Token wird **nichts** Sensibles ausgegeben.
-
-**Token setzen** – entweder in `wp-config.php` (sicherste Variante):
-
-```php
-define( 'HEALTH_ENDPOINT_TOKEN', 'ein-langes-zufaelliges-secret' );
+```cron
+* * * * * cd /var/www/example-site && wp cron event run --due-now >/dev/null 2>&1
 ```
 
-…oder auf der Admin-Seite im Feld „Diagnostics token" (die Konstante hat Vorrang).
+## Token-Protected Diagnostics
 
-**Abfrage** – per Header (empfohlen) oder Query:
+Detailed diagnostics are disabled unless a token is configured. Without a valid token, the public endpoint never returns versions, paths, or system metrics.
+
+Set a token in `wp-config.php`:
+
+```php
+define( 'HEALTH_ENDPOINT_TOKEN', 'replace-with-a-long-random-secret' );
+```
+
+Or set it on the plugin admin page. The constant takes precedence over the stored option.
+
+Query diagnostics with the `X-Health-Token` header:
 
 ```bash
-curl -s -H "X-Health-Token: SECRET" https://example.com/health
+curl -s -H "X-Health-Token: SECRET" "https://example.com/health"
+```
+
+Query-string tokens also work, but headers are safer because URLs are often stored in access logs, proxy logs, CDN logs, and browser history.
+
+```bash
 curl -s "https://example.com/health?token=SECRET"
 ```
 
-**Antwort mit Diagnose (gekürzt):**
+Example diagnostics payload:
 
 ```json
 {
-  "status": "ok", "db": "connected", "time": "…",
+  "status": "ok",
+  "db": "connected",
+  "time": "2026-06-04T09:12:00+00:00",
   "detail": {
-    "plugin_version": "2.1.0", "php_version": "8.4.0", "wp_version": "6.7",
-    "object_cache": "external", "db_latency_ms": 2,
-    "disk_used_pct": 41.0, "disk_free_mb": 18342,
-    "cpu_pct": 38.0, "cpu_load_1m": 1.52, "cpu_cores": 4,
-    "ram_used_pct": 63.0, "ram_avail_mb": 5921,
-    "https": "yes", "memory_limit": "512M", "woocommerce": "9.4.2"
+    "plugin_version": "2.1.0",
+    "php_version": "8.4.0",
+    "wp_version": "6.7",
+    "object_cache": "external",
+    "db_latency_ms": 2,
+    "disk_used_pct": 41.0,
+    "disk_free_mb": 18342,
+    "cpu_pct": 38.0,
+    "cpu_load_1m": 1.52,
+    "cpu_cores": 4,
+    "ram_used_pct": 63.0,
+    "ram_avail_mb": 5921,
+    "https": "yes",
+    "memory_limit": "512M",
+    "woocommerce": "9.4.2"
   }
 }
 ```
 
----
+## GitHub Release Updates
 
-## Automatische Updates aus GitHub
+The plugin can update itself from GitHub Releases without wordpress.org.
 
-Das Plugin meldet neue Versionen direkt im WordPress-Update-Center – ganz ohne wordpress.org.
+Release workflow:
 
-**Workflow:**
+1. Tag a new version and push the tag.
 
-1. Version bumpen (oder einfach taggen) und einen Tag pushen:
    ```bash
-   git tag v2.1.1 && git push origin v2.1.1
+   git tag v2.1.1
+   git push origin v2.1.1
    ```
-2. Die mitgelieferte **GitHub Action** (`.github/workflows/release.yml`) baut automatisch
-   `health-endpoint.zip` (mit der Versionsnummer aus dem Tag) und veröffentlicht ein **Release**.
-3. WordPress sieht das neue Release (täglicher Update-Check) und bietet das Update unter
-   **Plugins** / **Dashboard → Aktualisierungen** an – ein Klick genügt.
 
-**Privates Repo:** Da dieses Repo privat ist, braucht WordPress einen Lesezugriff, um Releases zu
-sehen und herunterzuladen. Trage dafür ein **fein-granulares GitHub-PAT** (read-only auf das Repo)
-auf der Admin-Seite im Feld „GitHub token (updates)" ein – oder als Konstante:
+2. The included GitHub Action builds `health-endpoint.zip`.
+3. The action publishes the ZIP as a GitHub Release asset.
+4. WordPress detects the release during its normal update checks and offers the update in **Plugins** and **Dashboard > Updates**.
+
+For a public repository, no GitHub token is required.
+
+For a private fork, WordPress needs read access to list releases and download assets. Configure a fine-grained GitHub personal access token with read-only access to that repository on the admin page, or define it in `wp-config.php`:
 
 ```php
-define( 'HEALTH_ENDPOINT_GITHUB_TOKEN', 'github_pat_xxx' );
+define( 'HEALTH_ENDPOINT_GITHUB_TOKEN', 'replace-with-read-only-github-token' );
 ```
 
-Ist das Repo öffentlich, ist **kein** Token nötig. Beim Download löst das Plugin den GitHub-Redirect
-selbst auf und reicht den Token **nicht** an die GitHub-CDN/S3 weiter.
+The updater resolves GitHub's authenticated asset redirect itself and does not forward the token to the final CDN/S3 download URL.
 
----
+## HTTP Status Codes
 
-## HTTP-Statuscodes
-
-| Code | Bedeutung |
+| Code | Meaning |
 |---|---|
-| `200` | WordPress + DB erreichbar (`status: ok`) |
-| `503` | DB-Verbindung **während** des Requests verloren (Plugin antwortet mit `status: error`-JSON) |
-| `500` | DB schon **beim Bootstrap** weg → WordPress core (`dead_db()`) stirbt **vor** dem Plugin. Es kommt die WP-DB-Fehlerseite. |
+| `200` | WordPress and the database are reachable (`status: ok`) |
+| `503` | Database connection failed during the endpoint request (`status: error`) |
+| `500` | The database failed during WordPress bootstrap before plugins could load |
 
-Fürs Monitoring **Accepted Status Codes = `200`** setzen → `500` **und** `503` gelten als down.
-Wer auch beim Bootstrap-Ausfall sauberes 503-JSON möchte, nutzt den optionalen
-[`db-error.php`-Drop-in](#optional-bootstrap-db-ausfall-abfangen-db-errorphp).
+For uptime monitoring, accept only `200`. Treat `500` and `503` as down.
 
-### Optional: Bootstrap-DB-Ausfall abfangen (`db-error.php`)
+### Optional Bootstrap Database Failure Handling
 
-Ist die DB schon beim Start weg, lädt WordPress **kein** Plugin, sondern `wp-content/db-error.php`
-(falls vorhanden). Den mitgelieferten Drop-in dafür ablegen:
+If the database is already unavailable while WordPress boots, WordPress cannot load normal plugins. Instead, it loads `wp-content/db-error.php` when that drop-in exists.
+
+Copy the included drop-in when you want the health endpoint to return consistent `503` JSON during bootstrap-level database failures:
 
 ```bash
-cp db-error.php /var/www/<site>/wp-content/db-error.php
+cp db-error.php /var/www/example-site/wp-content/db-error.php
 ```
 
-Dann liefern die Health-URLs auch im Bootstrap-Ausfall konsistentes **503-JSON**, während normale
-Besucher eine schlichte „Service temporarily unavailable"-Seite sehen.
+Normal visitors receive a simple "Service temporarily unavailable" page.
 
----
+## Configuration
 
-## Konfiguration (Konstanten & Filter)
+### Constants
 
-**Konstanten** (`wp-config.php`):
-
-| Konstante | Zweck |
+| Constant | Purpose |
 |---|---|
-| `HEALTH_ENDPOINT_TOKEN` | Secret für den Diagnose-Modus (Vorrang vor Admin-Feld). |
-| `HEALTH_ENDPOINT_SLUG` | Slug der Pretty-URL ändern (Default `health`). |
-| `HEALTH_ENDPOINT_GITHUB` | GitHub-Repo `owner/repo` für Updates (Default `ProjectMakersDE/wp-health-endpoint`). |
-| `HEALTH_ENDPOINT_GITHUB_TOKEN` | PAT für Updates aus einem privaten Repo. |
-| `DISABLE_WP_CRON` | WP-Pseudo-Cron aus, wenn du System-Cron nutzt (siehe oben). |
+| `HEALTH_ENDPOINT_TOKEN` | Diagnostics token. Takes precedence over the admin setting. |
+| `HEALTH_ENDPOINT_SLUG` | Pretty endpoint slug. Default: `health`. |
+| `HEALTH_ENDPOINT_GITHUB` | GitHub repository in `owner/repo` format. Default: `ProjectMakersDE/wp-health-endpoint`. |
+| `HEALTH_ENDPOINT_GITHUB_TOKEN` | Optional token for private forks. |
+| `DISABLE_WP_CRON` | Disable WP-Cron when using real server cron. |
 
-**Filter:**
+### Filters
 
-| Filter | Zweck |
+| Filter | Purpose |
 |---|---|
-| `health_endpoint_payload` | Gesamtes Antwort-Array anpassen. |
-| `health_endpoint_detail` | Eigene Diagnose-Werte/Checks ergänzen. |
-| `health_endpoint_status_code` | HTTP-Status überschreiben. |
-| `health_endpoint_token` | Token programmatisch liefern. |
+| `health_endpoint_payload` | Customize the full response payload. |
+| `health_endpoint_detail` | Add custom diagnostics fields or checks. |
+| `health_endpoint_status_code` | Override the HTTP status code. |
+| `health_endpoint_token` | Provide the diagnostics token programmatically. |
+
+Example:
 
 ```php
 add_filter( 'health_endpoint_detail', function ( $detail ) {
@@ -275,52 +286,63 @@ add_filter( 'health_endpoint_detail', function ( $detail ) {
 } );
 ```
 
----
+## Security
 
-## Sicherheit
+- The public endpoint only exposes `status`, `db`, and `time`.
+- Diagnostics require a configured token and a valid provided token.
+- Token comparison uses `hash_equals()`.
+- Empty or whitespace-only tokens disable diagnostics.
+- Prefer the `X-Health-Token` header over `?token=` in production.
+- Rotate a token if it was ever placed in a URL, log file, ticket, chat, or screenshot.
+- Use a long random token, for example `openssl rand -hex 24`.
+- Use the narrowest possible GitHub token scope for private forks.
+- Never commit production tokens, credentials, customer names, internal hostnames, or real customer URLs to this repository.
 
-- Der **öffentliche** Endpoint gibt nur `status`, `db` und `time` aus – keine Versionen, Pfade, internen Details.
-- Erweiterte Werte nur mit korrektem Token; Vergleich zeitkonstant (`hash_equals`).
-- Leeres/whitespace-Token = „nicht gesetzt" → Diagnose bleibt aus (fail-closed).
-- **In Produktion den `X-Health-Token`-Header bevorzugen, nicht `?token=`:** Query-Strings landen
-  im Klartext in Access-Logs sowie Proxy-/CDN-/WAF-Logs (und können via `Referer` leaken). Wenn ein
-  Token je in einer URL stand → **rotieren**.
-- GitHub-PAT möglichst fein-granular und nur mit Lesezugriff auf dieses eine Repo.
-- Langes Zufalls-Secret nutzen: `openssl rand -hex 24`
+## Caching Notes
 
----
+Full-page caches can produce false positives for the pretty `/health` URL. A cache may serve an old `200 {"status":"ok"}` response before PHP and the plugin run.
 
-## Caching-Hinweise
+For sites behind WP Super Cache, W3 Total Cache, LiteSpeed Cache, WP Rocket, Varnish, Cloudflare, or a similar full-page cache:
 
-⚠️ Hinter einem Full-Page-Cache (WP Super Cache, W3TC, LiteSpeed, WP Rocket, Varnish, Cloudflare)
-kann die **Pretty-URL `/health` zu einem False-Positive** führen: Der Monitor bleibt **grün**
-(gecachte `200 {"status":"ok"}`), obwohl die DB weg ist – die gecachte Antwort wird ausgeliefert,
-**bevor** PHP/das Plugin läuft.
+- Monitor `?health_check=1` or the REST route instead of `/health`.
+- Add `/health`, `/?health_check=1`, and `/wp-json/health/*` to the cache bypass list.
+- Add equivalent bypass rules in reverse proxies or CDN configuration.
 
-**Auf Seiten mit Page-Cache deshalb:**
+Without full-page caching, `/health` is fine.
 
-- die **Query-Variante** `?health_check=1` oder die **REST-Route** monitoren (werden i. d. R. nicht gecacht),
-- `/health`, `/?health_check=1` und `/wp-json/health/*` in die **Never-Cache-Liste** des Cache-Plugins
-  bzw. eine **Cloudflare-Cache-Bypass-Regel** eintragen.
+## Translation
 
-Ohne Page-Cache ist `/health` unproblematisch.
+The plugin uses WordPress internationalization functions with the `health-endpoint` text domain. English is the source language. Translation files can be added under `languages/`.
 
----
+## Public Repository Checklist
+
+Before making a fork public, verify:
+
+- The README and public descriptions use English.
+- Examples use `example.com`, placeholders, or generic paths only.
+- No production secrets, API keys, personal access tokens, passwords, private SSH keys, or customer data are committed.
+- No real customer names, internal project names, private domains, or client-specific setup notes are committed.
+- GitHub Actions do not print secrets.
+- Release ZIPs exclude `.git`, `.github`, local build output, and development-only files.
 
 ## Changelog
 
-**2.1.0**
-- Admin-Seite (Live-Status, Endpoint-Liste, Einstellungen) mit ProjectMakers-Branding
-- Internes Monitoring per Cron: DB, Speicherplatz, CPU, RAM mit konfigurierbaren Schwellen + Dauer
-- E-Mail-Alarme mit Cooldown und optionaler Recovery-Mail; „Test-E-Mail" & „Jetzt prüfen"
-- `format=plain` (Antwort `OK`/`ERROR`) für ultraschlanke Monitore
-- Automatische Updates aus GitHub-Releases (Private-Repo via PAT) + GitHub-Action-Build
-- Token jetzt auch über die Admin-Seite konfigurierbar (Konstante hat weiterhin Vorrang)
-- Modularer Aufbau (`includes/`), `uninstall.php`-Cleanup
+### 2.1.0
 
-**2.0.0**
-- REST-Route, `?health_check=1`-Fallback, token-geschützte Diagnose
-- Fail-fast DB-Check, HEAD-Support, optionaler `db-error.php`-Drop-in
+- Added admin page with live status, endpoint list, and settings.
+- Added internal cron monitoring for database, disk, CPU, and RAM.
+- Added configurable thresholds, sustained checks, cooldown, and optional recovery emails.
+- Added **Run check now** and **Send test email** actions.
+- Added `format=plain` for minimal `OK` or `ERROR` monitor responses.
+- Added GitHub Releases based auto-updates and release ZIP build workflow.
+- Added admin-configurable diagnostics token while keeping the constant as the highest-priority source.
+- Split implementation into `includes/` classes and added uninstall cleanup.
 
-**1.0.3**
-- Erste Version: öffentliches `/health` mit DB-Connection-Check
+### 2.0.0
+
+- Added REST route, query-string fallback, and token-protected diagnostics.
+- Added fail-fast database checks, HEAD support, and optional `db-error.php` drop-in.
+
+### 1.0.3
+
+- Initial public `/health` endpoint with database connection check.

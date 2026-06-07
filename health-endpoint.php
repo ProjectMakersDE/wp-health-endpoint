@@ -2,12 +2,14 @@
 /**
  * Plugin Name: Health Endpoint
  * Plugin URI:  https://github.com/ProjectMakersDE/wp-health-endpoint
- * Description: Lightweight public health/uptime endpoint + internal server monitoring (DB, disk, CPU, RAM) with e-mail alerts. Admin page, token-protected diagnostics, and GitHub-based auto-updates. By ProjectMakers.
+ * Description: Lightweight public health/uptime endpoint plus internal server monitoring (DB, disk, CPU, RAM) with email alerts, token-protected diagnostics, and GitHub-based auto-updates.
  * Version:     2.1.0
  * Author:      ProjectMakers
  * Author URI:  https://projectmakers.de
  * License:     GPLv3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ * Text Domain: health-endpoint
+ * Domain Path: /languages
  * Requires PHP: 7.2
  * Requires at least: 5.3
  * Update URI:  https://github.com/ProjectMakersDE/wp-health-endpoint
@@ -47,6 +49,14 @@ require_once HEALTH_ENDPOINT_DIR . 'includes/class-settings.php';
 require_once HEALTH_ENDPOINT_DIR . 'includes/class-endpoint.php';
 require_once HEALTH_ENDPOINT_DIR . 'includes/class-monitor.php';
 require_once HEALTH_ENDPOINT_DIR . 'includes/class-updater.php';
+
+/**
+ * Load translation files from the plugin languages directory.
+ */
+function load_textdomain() {
+	load_plugin_textdomain( 'health-endpoint', false, dirname( HEALTH_ENDPOINT_BASENAME ) . '/languages' );
+}
+add_action( 'init', __NAMESPACE__ . '\\load_textdomain' );
 
 /**
  * Wire everything up once WordPress is loaded.

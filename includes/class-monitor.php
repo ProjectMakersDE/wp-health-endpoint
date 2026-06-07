@@ -1,7 +1,7 @@
 <?php
 /**
  * Internal server monitoring: a ~1-minute cron samples DB/disk/CPU/RAM, keeps a
- * short rolling history for sustained-breach detection, and e-mails alerts
+ * short rolling history for sustained-breach detection, and emails alerts
  * (with cooldown + optional recovery notice).
  *
  * @package HealthEndpoint
@@ -138,7 +138,7 @@ class Monitor {
 		$state['last_run'] = $now;
 
 		// "Run now" is a read-only diagnostic: refresh the live snapshot for the
-		// admin panel but never mutate history or dispatch alert e-mails.
+		// admin panel but never mutate history or dispatch alert emails.
 		if ( $manual ) {
 			$this->save_state( $state );
 			return;
@@ -231,7 +231,7 @@ class Monitor {
 		$prev_t   = null;
 		$count    = 0;
 
-		// Walk newest → oldest. A genuine sub-threshold reading ends the streak; a
+		// Walk newest to oldest. A genuine sub-threshold reading ends the streak; a
 		// null (metric momentarily unavailable) is skipped, not treated as a reset;
 		// too large a gap between two breaching samples breaks contiguity.
 		for ( $i = count( $samples ) - 1; $i >= 0; $i-- ) {
@@ -381,7 +381,7 @@ class Monitor {
 
 	/**
 	 * @param array $s Settings.
-	 * @return array List of valid recipient e-mails.
+	 * @return array List of valid recipient emails.
 	 */
 	private function recipients( $s ) {
 		$list = array();
@@ -410,7 +410,7 @@ class Monitor {
 	}
 
 	private function send_alert( $recipients, $label, $message, $since, $now ) {
-		$subject = sprintf( '[Health] %s — %s ALERT', $this->site_label(), $label );
+		$subject = sprintf( '[Health] %s - %s ALERT', $this->site_label(), $label );
 
 		$lines = array(
 			sprintf( '%s: %s', $label, $message ),
@@ -420,14 +420,14 @@ class Monitor {
 			sprintf( 'Since:   %s UTC', gmdate( 'Y-m-d H:i:s', $since ? $since : $now ) ),
 			sprintf( 'Now:     %s UTC', gmdate( 'Y-m-d H:i:s', $now ) ),
 			'',
-			'— Health Endpoint (ProjectMakers)',
+			'-- Health Endpoint',
 		);
 
 		wp_mail( $recipients, $subject, implode( "\n", $lines ) );
 	}
 
 	private function send_recovery( $recipients, $label, $since, $now ) {
-		$subject = sprintf( '[Health] %s — %s recovered', $this->site_label(), $label );
+		$subject = sprintf( '[Health] %s - %s recovered', $this->site_label(), $label );
 
 		$duration = $since ? human_time_diff( $since, $now ) : __( 'unknown', 'health-endpoint' );
 
@@ -439,7 +439,7 @@ class Monitor {
 			sprintf( 'Duration: %s', $duration ),
 			sprintf( 'Now:      %s UTC', gmdate( 'Y-m-d H:i:s', $now ) ),
 			'',
-			'— Health Endpoint (ProjectMakers)',
+			'-- Health Endpoint',
 		);
 
 		wp_mail( $recipients, $subject, implode( "\n", $lines ) );
@@ -456,7 +456,7 @@ class Monitor {
 	}
 
 	/**
-	 * Send a test e-mail to the configured recipients.
+	 * Send a test email to the configured recipients.
 	 *
 	 * @return bool
 	 */
@@ -468,16 +468,16 @@ class Monitor {
 			return false;
 		}
 
-		$subject = sprintf( '[Health] %s — test e-mail', $this->site_label() );
+		$subject = sprintf( '[Health] %s - test email', $this->site_label() );
 		$lines   = array(
 			'This is a test alert from the Health Endpoint plugin.',
-			'If you received this, e-mail alerts are working.',
+			'If you received this, email alerts are working.',
 			'',
 			sprintf( 'Site:   %s', home_url( '/' ) ),
 			sprintf( 'Server: %s', $this->server_name() ),
 			sprintf( 'Now:    %s UTC', gmdate( 'Y-m-d H:i:s', time() ) ),
 			'',
-			'— Health Endpoint (ProjectMakers)',
+			'-- Health Endpoint',
 		);
 
 		return (bool) wp_mail( $recipients, $subject, implode( "\n", $lines ) );

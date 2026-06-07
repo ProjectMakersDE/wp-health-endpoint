@@ -1,9 +1,9 @@
 <?php
 /**
- * OPTIONAL drop-in — copy to  wp-content/db-error.php
+ * OPTIONAL drop-in - copy to wp-content/db-error.php
  *
  * Why: when WordPress cannot reach the database at bootstrap, core calls dead_db()
- * and renders this file (if present) INSTEAD of dying with a generic HTTP 500 page —
+ * and renders this file (if present) INSTEAD of dying with a generic HTTP 500 page -
  * and this happens BEFORE any plugin loads. Without it, the Health Endpoint plugin
  * never runs during a full DB outage, so the health URL would return WordPress's
  * own 500 error page rather than the plugin's 503 JSON.
@@ -12,7 +12,7 @@
  * emits, so a DB outage is reported consistently to your monitor. Every other visitor
  * gets a minimal, friendly "service unavailable" page.
  *
- * This file is NOT loaded automatically from the plugin folder — copy it to
+ * This file is NOT loaded automatically from the plugin folder - copy it to
  * wp-content/db-error.php to activate it. It is plain PHP with no dependencies.
  *
  * @package HealthEndpoint

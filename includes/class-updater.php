@@ -144,7 +144,7 @@ class Updater {
 	 *
 	 * The api.github.com asset/zipball URL 302-redirects to a presigned CDN URL.
 	 * We resolve that redirect ourselves WITH the token (auth_headers() adds it),
-	 * then let WordPress download the presigned URL WITHOUT any auth header — so the
+	 * then let WordPress download the presigned URL WITHOUT any auth header, so the
 	 * token is never transmitted to the CDN/S3 host (GitHub explicitly warns against
 	 * forwarding it). Returns false for any non-matching package so other plugins
 	 * download normally.
@@ -179,7 +179,7 @@ class Updater {
 		$location = wp_remote_retrieve_header( $response, 'location' );
 
 		if ( $code >= 300 && $code < 400 && $location ) {
-			// Presigned CDN URL — download with no auth header (avoids token leak).
+			// Presigned CDN URL: download with no auth header (avoids token leak).
 			if ( ! function_exists( 'download_url' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/file.php';
 			}

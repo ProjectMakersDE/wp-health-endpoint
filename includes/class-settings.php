@@ -1,6 +1,6 @@
 <?php
 /**
- * Settings store + admin page (status, endpoints, monitoring config, branding).
+ * Settings store + admin page (status, endpoints, monitoring config).
  *
  * @package HealthEndpoint
  */
@@ -231,9 +231,7 @@ class Settings {
 				<div>
 					<h1><?php esc_html_e( 'Health Endpoint', 'health-endpoint' ); ?></h1>
 					<p class="he-sub">
-						<?php esc_html_e( 'Uptime endpoint & server monitoring', 'health-endpoint' ); ?> &middot;
-						<?php esc_html_e( 'by', 'health-endpoint' ); ?>
-						<a href="https://projectmakers.de" target="_blank" rel="noopener">ProjectMakers</a>
+						<?php esc_html_e( 'Uptime endpoint & server monitoring', 'health-endpoint' ); ?>
 					</p>
 				</div>
 				<span class="he-version">v<?php echo esc_html( HEALTH_ENDPOINT_VERSION ); ?></span>
@@ -247,8 +245,8 @@ class Settings {
 					<p>
 						<?php
 						printf(
-							/* translators: %s: admin e-mail address */
-							esc_html__( 'No alert e-mail is set — alerts fall back to the site admin address (%s). Set a dedicated address below.', 'health-endpoint' ),
+							/* translators: %s: admin email address */
+							esc_html__( 'No alert email is set; alerts fall back to the site admin address (%s). Set a dedicated address below.', 'health-endpoint' ),
 							esc_html( get_option( 'admin_email' ) )
 						);
 						?>
@@ -261,7 +259,7 @@ class Settings {
 				<div class="he-card">
 					<h2><?php esc_html_e( 'What this plugin does', 'health-endpoint' ); ?></h2>
 					<p>
-						<?php esc_html_e( 'Exposes a tiny public health endpoint for uptime monitors (Uptime Kuma & co.) that only confirms WordPress and the database respond — no sensitive data is ever revealed. Optionally it monitors the server internally (database, disk, CPU, RAM) and e-mails you when something breaches your thresholds.', 'health-endpoint' ); ?>
+						<?php esc_html_e( 'Exposes a tiny public health endpoint for uptime monitors (Uptime Kuma & co.) that only confirms WordPress and the database respond; no sensitive data is ever revealed. Optionally it monitors the server internally (database, disk, CPU, RAM) and emails you when something breaches your thresholds.', 'health-endpoint' ); ?>
 					</p>
 				</div>
 
@@ -303,9 +301,9 @@ class Settings {
 						<?php endforeach; ?>
 					</table>
 					<p class="he-muted">
-						<?php esc_html_e( 'Healthy → HTTP 200 {"status":"ok"}. DB down → HTTP 503. Append a valid token for diagnostics:', 'health-endpoint' ); ?>
-						<code>?token=…</code> <?php esc_html_e( 'or header', 'health-endpoint' ); ?> <code>X-Health-Token: …</code>.
-						<?php echo $token_set ? esc_html__( 'Diagnostics token is configured.', 'health-endpoint' ) : esc_html__( 'No token configured — diagnostics mode is off.', 'health-endpoint' ); ?>
+						<?php esc_html_e( 'Healthy: HTTP 200 {"status":"ok"}. DB down: HTTP 503. Append a valid token for diagnostics:', 'health-endpoint' ); ?>
+						<code>?token=...</code> <?php esc_html_e( 'or header', 'health-endpoint' ); ?> <code>X-Health-Token: ...</code>.
+						<?php echo $token_set ? esc_html__( 'Diagnostics token is configured.', 'health-endpoint' ) : esc_html__( 'No token configured; diagnostics mode is off.', 'health-endpoint' ); ?>
 					</p>
 				</div>
 
@@ -325,7 +323,7 @@ class Settings {
 								</td>
 							</tr>
 							<tr>
-								<th scope="row"><label for="he-email"><?php esc_html_e( 'Alert e-mail(s)', 'health-endpoint' ); ?></label></th>
+								<th scope="row"><label for="he-email"><?php esc_html_e( 'Alert email(s)', 'health-endpoint' ); ?></label></th>
 								<td>
 									<input type="text" id="he-email" class="regular-text" name="<?php echo esc_attr( self::OPTION ); ?>[alert_email]" value="<?php echo esc_attr( $s['alert_email'] ); ?>" placeholder="you@example.com, ops@example.com" />
 									<p class="description"><?php esc_html_e( 'Comma-separated. Alerts are sent here when a check fails.', 'health-endpoint' ); ?></p>
@@ -335,7 +333,7 @@ class Settings {
 								<th scope="row"><?php esc_html_e( 'Disk threshold', 'health-endpoint' ); ?></th>
 								<td>
 									<?php $this->select_pct( 'disk_threshold', (int) $s['disk_threshold'], array( 60, 70, 80, 85, 90, 95 ) ); ?>
-									<?php esc_html_e( 'used → alert', 'health-endpoint' ); ?>
+									<?php esc_html_e( 'used -> alert', 'health-endpoint' ); ?>
 								</td>
 							</tr>
 							<tr>
@@ -365,7 +363,7 @@ class Settings {
 									<p>
 										<label>
 											<input type="checkbox" name="<?php echo esc_attr( self::OPTION ); ?>[recovery_email]" value="1" <?php checked( $s['recovery_email'], 1 ); ?> />
-											<?php esc_html_e( 'Also send a recovery e-mail when an issue clears', 'health-endpoint' ); ?>
+											<?php esc_html_e( 'Also send a recovery email when an issue clears', 'health-endpoint' ); ?>
 										</label>
 									</p>
 								</td>
@@ -386,7 +384,7 @@ class Settings {
 								<th scope="row"><label for="he-gh"><?php esc_html_e( 'GitHub token (updates)', 'health-endpoint' ); ?></label></th>
 								<td>
 									<input type="password" id="he-gh" class="regular-text" name="<?php echo esc_attr( self::OPTION ); ?>[github_token]" value="<?php echo esc_attr( $s['github_token'] ); ?>" autocomplete="off" />
-									<p class="description"><?php esc_html_e( 'Only needed if the GitHub repo is private — a fine-grained PAT with read access to the repo, so WordPress can see and download new releases.', 'health-endpoint' ); ?></p>
+									<p class="description"><?php esc_html_e( 'Only needed if the GitHub repo is private; use a fine-grained PAT with read access to the repo so WordPress can see and download new releases.', 'health-endpoint' ); ?></p>
 								</td>
 							</tr>
 						</table>
@@ -396,17 +394,16 @@ class Settings {
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="he-inline">
 						<?php wp_nonce_field( 'health_endpoint_test_email' ); ?>
 						<input type="hidden" name="action" value="health_endpoint_test_email" />
-						<button type="submit" class="button"><?php esc_html_e( 'Send test e-mail', 'health-endpoint' ); ?></button>
+						<button type="submit" class="button"><?php esc_html_e( 'Send test email', 'health-endpoint' ); ?></button>
 					</form>
 				</div>
 
 			</div>
 
 			<div class="he-footer">
-				<?php esc_html_e( 'Health Endpoint', 'health-endpoint' ); ?> &mdash;
-				<?php esc_html_e( 'crafted by', 'health-endpoint' ); ?>
-				<a href="https://projectmakers.de" target="_blank" rel="noopener"><strong>ProjectMakers</strong></a>
+				<?php esc_html_e( 'Health Endpoint', 'health-endpoint' ); ?>
 				&middot; <a href="https://github.com/ProjectMakersDE/wp-health-endpoint" target="_blank" rel="noopener">GitHub</a>
+				&middot; <a href="https://projectmakers.de" target="_blank" rel="noopener">ProjectMakers</a>
 			</div>
 		</div>
 		<?php
@@ -418,8 +415,8 @@ class Settings {
 			return;
 		}
 		$map = array(
-			'testmail_ok'   => array( 'updated', __( 'Test e-mail sent.', 'health-endpoint' ) ),
-			'testmail_fail' => array( 'error', __( 'Test e-mail could not be sent. Check the alert address and your mailer (e.g. WP Mail SMTP).', 'health-endpoint' ) ),
+			'testmail_ok'   => array( 'updated', __( 'Test email sent.', 'health-endpoint' ) ),
+			'testmail_fail' => array( 'error', __( 'Test email could not be sent. Check the alert address and your mailer (e.g. WP Mail SMTP).', 'health-endpoint' ) ),
 			'ran'           => array( 'updated', __( 'Internal check executed.', 'health-endpoint' ) ),
 		);
 		if ( ! isset( $map[ $notice ] ) ) {

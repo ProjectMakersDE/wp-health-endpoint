@@ -1,7 +1,7 @@
 <?php
 /**
  * Stateless system-metric helpers. All return null when a metric is unavailable
- * on the host (restrictive open_basedir, non-Linux, disabled functions, …) so
+ * on the host (restrictive open_basedir, non-Linux, disabled functions, etc.) so
  * callers can degrade gracefully.
  *
  * @package HealthEndpoint

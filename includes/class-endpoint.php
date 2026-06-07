@@ -187,7 +187,7 @@ class Endpoint {
 			return;
 		}
 
-		// Prevent storing (cannot stop serving an already-cached page — see README).
+		// Prevent storing (cannot stop serving an already-cached page; see README).
 		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
 			define( 'DONOTCACHEPAGE', true );
 		}
