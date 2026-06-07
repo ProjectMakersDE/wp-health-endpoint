@@ -4,7 +4,7 @@ Tags: health check, uptime, monitoring, diagnostics, cron
 Requires at least: 5.3
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 2.1.4
+Stable tag: 2.1.5
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -60,6 +60,10 @@ The interval is configurable. Available intervals are 1, 2, 5, 10, 15, 30, and 6
 No. The internal monitor is useful for local alerts, but an external uptime monitor is still recommended to detect complete outages.
 
 == Changelog ==
+
+= 2.1.5 =
+
+* Replaced PHP namespaces with explicitly prefixed global classes and functions to satisfy WordPress.org prefix checks.
 
 = 2.1.4 =
 

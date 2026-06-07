@@ -5,20 +5,18 @@
  * @package HealthEndpoint
  */
 
-namespace projectmakers_health_endpoint;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Settings {
+class ProjectMakers_Health_Endpoint_Settings {
 
 	const OPTION     = 'health_endpoint_settings';
 	const GROUP      = 'health_endpoint_group';
 	const PAGE       = 'projectmakers-health-endpoint';
 	const CAPABILITY = 'manage_options';
 
-	/** @var Settings|null */
+	/** @var ProjectMakers_Health_Endpoint_Settings|null */
 	private static $instance = null;
 
 	public static function instance() {
@@ -159,9 +157,9 @@ class Settings {
 
 		// (Re)schedule or clear the monitoring cron to match the new state.
 		if ( $out['monitoring_enabled'] ) {
-			Monitor::instance()->sync_schedule( $out, true );
+			ProjectMakers_Health_Endpoint_Monitor::instance()->sync_schedule( $out, true );
 		} else {
-			Monitor::unschedule();
+			ProjectMakers_Health_Endpoint_Monitor::unschedule();
 		}
 
 		add_settings_error( self::OPTION, 'saved', __( 'Settings saved.', 'projectmakers-health-endpoint' ), 'updated' );
@@ -213,7 +211,7 @@ class Settings {
 		}
 		check_admin_referer( 'health_endpoint_test_email' );
 
-		$sent   = Monitor::instance()->send_test_email();
+		$sent   = ProjectMakers_Health_Endpoint_Monitor::instance()->send_test_email();
 		$status = $sent ? 'testmail_ok' : 'testmail_fail';
 
 		wp_safe_redirect( add_query_arg( 'he_notice', $status, admin_url( 'admin.php?page=' . self::PAGE ) ) );
@@ -226,7 +224,7 @@ class Settings {
 		}
 		check_admin_referer( 'health_endpoint_run_now' );
 
-		Monitor::instance()->run_checks( true );
+		ProjectMakers_Health_Endpoint_Monitor::instance()->run_checks( true );
 
 		wp_safe_redirect( add_query_arg( 'he_notice', 'ran', admin_url( 'admin.php?page=' . self::PAGE ) ) );
 		exit;
@@ -260,9 +258,9 @@ class Settings {
 		}
 
 		$s          = self::get();
-		$snapshot   = Monitor::instance()->snapshot();
-		$last_run   = (int) Monitor::instance()->last_run();
-		$last_duration_ms = Monitor::instance()->last_duration_ms();
+		$snapshot         = ProjectMakers_Health_Endpoint_Monitor::instance()->snapshot();
+		$last_run         = (int) ProjectMakers_Health_Endpoint_Monitor::instance()->last_run();
+		$last_duration_ms = ProjectMakers_Health_Endpoint_Monitor::instance()->last_duration_ms();
 		$token_set  = '' !== self::token();
 		$token_lock = defined( 'HEALTH_ENDPOINT_TOKEN' ) && '' !== trim( (string) HEALTH_ENDPOINT_TOKEN );
 

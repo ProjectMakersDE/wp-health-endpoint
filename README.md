@@ -191,7 +191,7 @@ Example diagnostics payload:
   "db": "connected",
   "time": "2026-06-04T09:12:00+00:00",
   "detail": {
-    "plugin_version": "2.1.4",
+    "plugin_version": "2.1.5",
     "php_version": "8.4.0",
     "wp_version": "6.7",
     "object_cache": "external",
@@ -299,6 +299,10 @@ Before making a fork public, verify:
 - Release ZIPs exclude `.git`, `.github`, local build output, and development-only files.
 
 ## Changelog
+
+### 2.1.5
+
+- Replaced PHP namespaces with explicitly prefixed global classes and functions to satisfy WordPress.org prefix checks.
 
 ### 2.1.4
 

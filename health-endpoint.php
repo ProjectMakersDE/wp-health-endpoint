@@ -3,7 +3,7 @@
  * Plugin Name: ProjectMakers Health Endpoint
  * Plugin URI:  https://github.com/ProjectMakersDE/wp-health-endpoint
  * Description: Lightweight public health/uptime endpoint plus internal server monitoring (DB, disk, CPU, RAM) with email alerts and token-protected diagnostics.
- * Version:     2.1.4
+ * Version:     2.1.5
  * Author:      ProjectMakers
  * Author URI:  https://projectmakers.de
  * License:     GPLv3
@@ -26,13 +26,11 @@
  * @package HealthEndpoint
  */
 
-namespace projectmakers_health_endpoint;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HEALTH_ENDPOINT_VERSION', '2.1.4' );
+define( 'HEALTH_ENDPOINT_VERSION', '2.1.5' );
 define( 'HEALTH_ENDPOINT_FILE', __FILE__ );
 define( 'HEALTH_ENDPOINT_DIR', plugin_dir_path( __FILE__ ) );
 define( 'HEALTH_ENDPOINT_URL', plugin_dir_url( __FILE__ ) );
@@ -46,31 +44,31 @@ require_once HEALTH_ENDPOINT_DIR . 'includes/class-monitor.php';
 /**
  * Wire everything up once WordPress is loaded.
  */
-function bootstrap() {
-	Endpoint::instance();
-	Monitor::instance();
+function projectmakers_health_endpoint_bootstrap() {
+	ProjectMakers_Health_Endpoint_Endpoint::instance();
+	ProjectMakers_Health_Endpoint_Monitor::instance();
 
 	if ( is_admin() ) {
-		Settings::instance();
+		ProjectMakers_Health_Endpoint_Settings::instance();
 	}
 }
-add_action( 'plugins_loaded', __NAMESPACE__ . '\\bootstrap' );
+add_action( 'plugins_loaded', 'projectmakers_health_endpoint_bootstrap' );
 
 /**
  * Activation: register rewrite rule, flush, and (re)schedule monitoring cron.
  */
-function activate() {
-	Endpoint::instance()->register_rewrite_rules();
+function projectmakers_health_endpoint_activate() {
+	ProjectMakers_Health_Endpoint_Endpoint::instance()->register_rewrite_rules();
 	flush_rewrite_rules();
-	Monitor::instance()->maybe_schedule();
+	ProjectMakers_Health_Endpoint_Monitor::instance()->maybe_schedule();
 }
-register_activation_hook( __FILE__, __NAMESPACE__ . '\\activate' );
+register_activation_hook( __FILE__, 'projectmakers_health_endpoint_activate' );
 
 /**
  * Deactivation: clean up rewrite rules and the scheduled cron.
  */
-function deactivate() {
+function projectmakers_health_endpoint_deactivate() {
 	flush_rewrite_rules();
-	Monitor::unschedule();
+	ProjectMakers_Health_Endpoint_Monitor::unschedule();
 }
-register_deactivation_hook( __FILE__, __NAMESPACE__ . '\\deactivate' );
+register_deactivation_hook( __FILE__, 'projectmakers_health_endpoint_deactivate' );

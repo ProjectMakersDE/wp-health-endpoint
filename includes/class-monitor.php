@@ -7,13 +7,11 @@
  * @package HealthEndpoint
  */
 
-namespace projectmakers_health_endpoint;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Monitor {
+class ProjectMakers_Health_Endpoint_Monitor {
 
 	const STATE     = 'health_endpoint_state';
 	const CRON_HOOK = 'health_endpoint_cron';
@@ -42,7 +40,7 @@ class Monitor {
 	}
 
 	public function add_schedule( $schedules ) {
-		foreach ( Settings::check_interval_options() as $seconds ) {
+		foreach ( ProjectMakers_Health_Endpoint_Settings::check_interval_options() as $seconds ) {
 			$schedule = self::schedule_name( $seconds );
 			if ( ! isset( $schedules[ $schedule ] ) ) {
 				$schedules[ $schedule ] = array(
@@ -50,7 +48,7 @@ class Monitor {
 					'display'  => sprintf(
 						/* translators: %s: interval label, e.g. "5 minutes" */
 						__( 'Every %s (Health Endpoint)', 'projectmakers-health-endpoint' ),
-						Settings::format_interval( $seconds )
+						ProjectMakers_Health_Endpoint_Settings::format_interval( $seconds )
 					),
 				);
 			}
@@ -69,14 +67,14 @@ class Monitor {
 	 * @param bool       $force    Whether to clear and recreate the event even if one exists.
 	 */
 	public function sync_schedule( $settings = null, $force = false ) {
-		$s = is_array( $settings ) ? $settings : Settings::get();
+		$s = is_array( $settings ) ? $settings : ProjectMakers_Health_Endpoint_Settings::get();
 
 		if ( empty( $s['monitoring_enabled'] ) ) {
 			self::unschedule();
 			return;
 		}
 
-		$interval = Settings::normalize_check_interval( $s['check_interval'] ?? self::DEFAULT_INTERVAL );
+		$interval = ProjectMakers_Health_Endpoint_Settings::normalize_check_interval( $s['check_interval'] ?? self::DEFAULT_INTERVAL );
 		$schedule = self::schedule_name( $interval );
 		$current  = wp_next_scheduled( self::CRON_HOOK );
 
@@ -143,10 +141,10 @@ class Monitor {
 	 */
 	public function snapshot() {
 		return array(
-			'db'   => check_db(),
-			'disk' => disk_usage(),
-			'cpu'  => cpu_load(),
-			'ram'  => ram_usage(),
+			'db'   => projectmakers_health_endpoint_check_db(),
+			'disk' => projectmakers_health_endpoint_disk_usage(),
+			'cpu'  => projectmakers_health_endpoint_cpu_load(),
+			'ram'  => projectmakers_health_endpoint_ram_usage(),
 		);
 	}
 
@@ -157,14 +155,14 @@ class Monitor {
 	 */
 	public function run_checks( $manual = false ) {
 		$started = microtime( true );
-		$s       = Settings::get();
+		$s       = ProjectMakers_Health_Endpoint_Settings::get();
 		$now     = time();
 		$state   = $this->state();
 
-		$db   = check_db();
-		$disk = disk_usage();
-		$cpu  = cpu_load();
-		$ram  = ram_usage();
+		$db   = projectmakers_health_endpoint_check_db();
+		$disk = projectmakers_health_endpoint_disk_usage();
+		$cpu  = projectmakers_health_endpoint_cpu_load();
+		$ram  = projectmakers_health_endpoint_ram_usage();
 
 		$state['snapshot'] = array(
 			'db'   => $db,
@@ -504,7 +502,7 @@ class Monitor {
 	 * @return bool
 	 */
 	public function send_test_email() {
-		$s          = Settings::get();
+		$s          = ProjectMakers_Health_Endpoint_Settings::get();
 		$recipients = $this->recipients( $s );
 
 		if ( ! $recipients ) {

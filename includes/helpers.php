@@ -7,8 +7,6 @@
  * @package HealthEndpoint
  */
 
-namespace projectmakers_health_endpoint;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -21,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return array{ok:bool,latency_ms:?int}
  */
-function check_db() {
+function projectmakers_health_endpoint_check_db() {
 	global $wpdb;
 
 	$ok      = false;
@@ -70,7 +68,7 @@ function check_db() {
  * @param string|null $path Filesystem path to inspect.
  * @return array{free_mb:int,total_mb:int,used_pct:float}|null
  */
-function disk_usage( $path = null ) {
+function projectmakers_health_endpoint_disk_usage( $path = null ) {
 	if ( ! function_exists( 'disk_free_space' ) || ! function_exists( 'disk_total_space' ) ) {
 		return null;
 	}
@@ -99,7 +97,7 @@ function disk_usage( $path = null ) {
  *
  * @return int
  */
-function cpu_cores() {
+function projectmakers_health_endpoint_cpu_cores() {
 	static $cores = null;
 
 	if ( null !== $cores ) {
@@ -141,7 +139,7 @@ function cpu_cores() {
  *
  * @return array{load_1m:float,cores:int,pct:float}|null
  */
-function cpu_load() {
+function projectmakers_health_endpoint_cpu_load() {
 	if ( ! function_exists( 'sys_getloadavg' ) ) {
 		return null;
 	}
@@ -152,7 +150,7 @@ function cpu_load() {
 		return null;
 	}
 
-	$cores = cpu_cores();
+	$cores = projectmakers_health_endpoint_cpu_cores();
 
 	if ( $cores < 1 ) {
 		return null; // Cannot reliably turn load into a percentage.
@@ -170,7 +168,7 @@ function cpu_load() {
  *
  * @return array{total_mb:int,avail_mb:int,used_pct:float}|null
  */
-function ram_usage() {
+function projectmakers_health_endpoint_ram_usage() {
 	if ( ! @is_readable( '/proc/meminfo' ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors
 		return null;
 	}

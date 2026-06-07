@@ -6,15 +6,13 @@
  * @package HealthEndpoint
  */
 
-namespace projectmakers_health_endpoint;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Endpoint {
+class ProjectMakers_Health_Endpoint_Endpoint {
 
-	/** @var Endpoint|null */
+	/** @var ProjectMakers_Health_Endpoint_Endpoint|null */
 	private static $instance = null;
 
 	public static function instance() {
@@ -89,7 +87,7 @@ class Endpoint {
 	 * @return bool
 	 */
 	public function token_ok( $provided = null ) {
-		$configured = Settings::token();
+		$configured = ProjectMakers_Health_Endpoint_Settings::token();
 		$configured = (string) apply_filters( 'health_endpoint_token', $configured );
 
 		if ( '' === trim( $configured ) ) {
@@ -115,7 +113,7 @@ class Endpoint {
 	 * @return array{0:array,1:int}
 	 */
 	public function build_payload( $detailed = false ) {
-		$db = check_db();
+		$db = projectmakers_health_endpoint_check_db();
 
 		$healthy = (bool) $db['ok'];
 
@@ -147,9 +145,9 @@ class Endpoint {
 	 * @return array
 	 */
 	private function detail( $db_latency_ms ) {
-		$disk = disk_usage();
-		$cpu  = cpu_load();
-		$ram  = ram_usage();
+		$disk = projectmakers_health_endpoint_disk_usage();
+		$cpu  = projectmakers_health_endpoint_cpu_load();
+		$ram  = projectmakers_health_endpoint_ram_usage();
 
 		$detail = array(
 			'plugin_version' => HEALTH_ENDPOINT_VERSION,
