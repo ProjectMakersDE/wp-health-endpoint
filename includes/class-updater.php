@@ -175,7 +175,7 @@ class Updater {
 		$data = get_plugin_data( $this->file, false, false );
 
 		$info               = new \stdClass();
-		$info->name         = isset( $data['Name'] ) ? $data['Name'] : 'Health Endpoint';
+		$info->name         = isset( $data['Name'] ) ? $data['Name'] : 'ProjectMakers Health Endpoint';
 		$info->slug         = $this->slug;
 		$info->version      = $this->version_from_tag( $release->tag_name );
 		$info->author       = isset( $data['Author'] ) ? $data['Author'] : 'ProjectMakers';

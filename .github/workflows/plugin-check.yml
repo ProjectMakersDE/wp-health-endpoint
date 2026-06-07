@@ -1,0 +1,45 @@
+name: Plugin Check
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  plugin-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Stage plugin files
+        run: |
+          set -euo pipefail
+          SLUG="health-endpoint"
+          mkdir -p "build/${SLUG}"
+
+          rsync -a ./ "build/${SLUG}/" \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude '.gitignore' \
+            --exclude '.gitattributes' \
+            --exclude 'build'
+
+      - name: Run WordPress Plugin Check
+        uses: wordpress/plugin-check-action@v1
+        with:
+          build-dir: './build/health-endpoint'
+          slug: 'health-endpoint'
+          categories: |
+            accessibility
+            general
+            performance
+            plugin_repo
+            security

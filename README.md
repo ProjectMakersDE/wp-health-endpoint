@@ -1,10 +1,12 @@
-# Health Endpoint
+# ProjectMakers Health Endpoint
 
 Lightweight WordPress health and uptime endpoint with optional internal server monitoring.
 
-Health Endpoint exposes a small public endpoint that confirms WordPress and the database are responding. It can also run internal checks for database connectivity, disk usage, CPU load, and RAM usage, then send email alerts when configured thresholds are breached.
+ProjectMakers Health Endpoint exposes a small public endpoint that confirms WordPress and the database are responding. It can also run internal checks for database connectivity, disk usage, CPU load, and RAM usage, then send email alerts when configured thresholds are breached.
 
 The plugin is designed for public open-source use: public responses stay minimal, diagnostics require a token, and repository documentation uses generic examples only.
+
+The WordPress.org-facing plugin name starts with `ProjectMakers` to avoid a generic directory name. Submit the plugin from a verified ProjectMakers account/email domain.
 
 ## Contents
 
@@ -189,7 +191,7 @@ Example diagnostics payload:
   "db": "connected",
   "time": "2026-06-04T09:12:00+00:00",
   "detail": {
-    "plugin_version": "2.1.2",
+    "plugin_version": "2.1.3",
     "php_version": "8.4.0",
     "wp_version": "6.7",
     "object_cache": "external",
@@ -317,6 +319,12 @@ Before making a fork public, verify:
 - Release ZIPs exclude `.git`, `.github`, local build output, and development-only files.
 
 ## Changelog
+
+### 2.1.3
+
+- Renamed the WordPress-facing plugin name to ProjectMakers Health Endpoint for Plugin Directory naming compliance.
+- Added a WordPress.org `readme.txt`.
+- Added a GitHub Actions workflow for WordPress Plugin Check.
 
 ### 2.1.2
 

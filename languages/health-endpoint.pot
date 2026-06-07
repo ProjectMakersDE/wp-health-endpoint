@@ -1,14 +1,14 @@
-# Health Endpoint translation template.
+# ProjectMakers Health Endpoint translation template.
 # Copyright (C) 2026 ProjectMakers
-# This file is distributed under the same license as the Health Endpoint package.
+# This file is distributed under the same license as the ProjectMakers Health Endpoint package.
 # Translators:
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Health Endpoint 2.1.2\n"
+"Project-Id-Version: ProjectMakers Health Endpoint 2.1.3\n"
 "Report-Msgid-Bugs-To: https://github.com/ProjectMakersDE/wp-health-endpoint/"
 "issues\n"
-"POT-Creation-Date: 2026-06-07 15:51+0200\n"
+"POT-Creation-Date: 2026-06-07 16:23+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -82,44 +82,44 @@ msgid_plural "%d minutes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-settings.php:166
+#: includes/class-settings.php:167
 msgid "Settings saved."
 msgstr ""
 
-#: includes/class-settings.php:180 includes/class-settings.php:280
-msgid "Health Endpoint"
+#: includes/class-settings.php:181 includes/class-settings.php:281
+msgid "ProjectMakers Health Endpoint"
 msgstr ""
 
-#: includes/class-settings.php:181
+#: includes/class-settings.php:182
 msgid "Health"
 msgstr ""
 
-#: includes/class-settings.php:192
+#: includes/class-settings.php:193
 msgid "Settings"
 msgstr ""
 
-#: includes/class-settings.php:211 includes/class-settings.php:224
-#: includes/class-settings.php:236
+#: includes/class-settings.php:212 includes/class-settings.php:225
+#: includes/class-settings.php:237
 msgid "Insufficient permissions."
 msgstr ""
 
-#: includes/class-settings.php:282
+#: includes/class-settings.php:283
 msgid "Uptime endpoint & server monitoring"
 msgstr ""
 
 #. translators: %s: admin email address
-#: includes/class-settings.php:297
+#: includes/class-settings.php:298
 #, php-format
 msgid ""
 "No alert email is set; alerts fall back to the site admin address (%s). Set "
 "a dedicated address below."
 msgstr ""
 
-#: includes/class-settings.php:308
+#: includes/class-settings.php:309
 msgid "What this plugin does"
 msgstr ""
 
-#: includes/class-settings.php:310
+#: includes/class-settings.php:311
 msgid ""
 "Exposes a tiny public health endpoint for uptime monitors (Uptime Kuma & "
 "co.) that only confirms WordPress and the database respond; no sensitive "
@@ -128,207 +128,207 @@ msgid ""
 "thresholds."
 msgstr ""
 
-#: includes/class-settings.php:315
+#: includes/class-settings.php:316
 msgid "Live status"
 msgstr ""
 
-#: includes/class-settings.php:318
+#: includes/class-settings.php:319
 msgid "connected"
 msgstr ""
 
-#: includes/class-settings.php:318
+#: includes/class-settings.php:319
 msgid "down"
 msgstr ""
 
 #. translators: %s: human time diff
-#: includes/class-settings.php:328
+#: includes/class-settings.php:329
 #, php-format
 msgid "Last internal check: %s ago"
 msgstr ""
 
 #. translators: %s: formatted duration
-#: includes/class-settings.php:333
+#: includes/class-settings.php:334
 #, php-format
 msgid "Last check duration: %s"
 msgstr ""
 
-#: includes/class-settings.php:338
+#: includes/class-settings.php:339
 msgid "Internal monitoring has not run yet."
 msgstr ""
 
-#: includes/class-settings.php:345
+#: includes/class-settings.php:346
 msgid "Run check now"
 msgstr ""
 
-#: includes/class-settings.php:350
+#: includes/class-settings.php:351
 msgid "Endpoints"
 msgstr ""
 
-#: includes/class-settings.php:360
+#: includes/class-settings.php:361
 msgid ""
 "Healthy: HTTP 200 {\"status\":\"ok\"}. DB down: HTTP 503. Append a valid "
 "token for diagnostics:"
 msgstr ""
 
-#: includes/class-settings.php:361
+#: includes/class-settings.php:362
 msgid "or header"
 msgstr ""
 
-#: includes/class-settings.php:362
+#: includes/class-settings.php:363
 msgid "Diagnostics token is configured."
 msgstr ""
 
-#: includes/class-settings.php:362
+#: includes/class-settings.php:363
 msgid "No token configured; diagnostics mode is off."
 msgstr ""
 
-#: includes/class-settings.php:367
+#: includes/class-settings.php:368
 msgid "Monitoring & alerts"
 msgstr ""
 
-#: includes/class-settings.php:372
+#: includes/class-settings.php:373
 msgid "Internal monitoring"
 msgstr ""
 
-#: includes/class-settings.php:376
+#: includes/class-settings.php:377
 msgid "Check the server at the configured interval and alert on breaches"
 msgstr ""
 
-#: includes/class-settings.php:378
+#: includes/class-settings.php:379
 msgid ""
 "Runs via WP-Cron. For reliable checks on low-traffic sites, set up a real "
 "server cron (see README)."
 msgstr ""
 
-#: includes/class-settings.php:382
+#: includes/class-settings.php:383
 msgid "Check interval"
 msgstr ""
 
-#: includes/class-settings.php:391
+#: includes/class-settings.php:392
 msgid "How often the internal database, disk, CPU, and RAM checks should run."
 msgstr ""
 
-#: includes/class-settings.php:395
+#: includes/class-settings.php:396
 msgid "Alert email(s)"
 msgstr ""
 
-#: includes/class-settings.php:398
+#: includes/class-settings.php:399
 msgid "Comma-separated. Alerts are sent here when a check fails."
 msgstr ""
 
-#: includes/class-settings.php:402
+#: includes/class-settings.php:403
 msgid "Disk threshold"
 msgstr ""
 
-#: includes/class-settings.php:405
+#: includes/class-settings.php:406
 msgid "used -> alert"
 msgstr ""
 
-#: includes/class-settings.php:409
+#: includes/class-settings.php:410
 msgid "CPU threshold"
 msgstr ""
 
-#: includes/class-settings.php:412
+#: includes/class-settings.php:413
 msgid "load-per-core, sustained for"
 msgstr ""
 
-#: includes/class-settings.php:414 includes/class-settings.php:423
+#: includes/class-settings.php:415 includes/class-settings.php:424
 msgid "minute(s)"
 msgstr ""
 
-#: includes/class-settings.php:418
+#: includes/class-settings.php:419
 msgid "RAM threshold"
 msgstr ""
 
-#: includes/class-settings.php:421
+#: includes/class-settings.php:422
 msgid "used, sustained for"
 msgstr ""
 
-#: includes/class-settings.php:427
+#: includes/class-settings.php:428
 msgid "Repeat-alert cooldown"
 msgstr ""
 
-#: includes/class-settings.php:430
+#: includes/class-settings.php:431
 msgid "minute(s) between repeated alerts for the same issue"
 msgstr ""
 
-#: includes/class-settings.php:431
+#: includes/class-settings.php:432
 msgid ""
 "Set to 0 to send a single alert per incident (no reminders until it "
 "recovers)."
 msgstr ""
 
-#: includes/class-settings.php:435
+#: includes/class-settings.php:436
 msgid "Also send a recovery email when an issue clears"
 msgstr ""
 
-#: includes/class-settings.php:441
+#: includes/class-settings.php:442
 msgid "Diagnostics token"
 msgstr ""
 
-#: includes/class-settings.php:444
+#: includes/class-settings.php:445
 msgid "Defined in wp-config.php (HEALTH_ENDPOINT_TOKEN)"
 msgstr ""
 
-#: includes/class-settings.php:445
+#: includes/class-settings.php:446
 msgid "The wp-config.php constant takes precedence over this field."
 msgstr ""
 
-#: includes/class-settings.php:448
+#: includes/class-settings.php:449
 msgid ""
 "Unlocks the diagnostics payload. Leave empty to keep diagnostics off. For "
 "best security define HEALTH_ENDPOINT_TOKEN in wp-config.php instead."
 msgstr ""
 
-#: includes/class-settings.php:450
+#: includes/class-settings.php:451
 msgid "Generate token"
 msgstr ""
 
-#: includes/class-settings.php:469
+#: includes/class-settings.php:470
 msgid "Send test email"
 msgstr ""
 
-#: includes/class-settings.php:477
+#: includes/class-settings.php:478
 msgid "Made with"
 msgstr ""
 
-#: includes/class-settings.php:478
+#: includes/class-settings.php:479
 msgid "love"
 msgstr ""
 
-#: includes/class-settings.php:479
+#: includes/class-settings.php:480
 msgid "by"
 msgstr ""
 
-#: includes/class-settings.php:493
+#: includes/class-settings.php:494
 msgid "Test email sent."
 msgstr ""
 
-#: includes/class-settings.php:494
+#: includes/class-settings.php:495
 msgid ""
 "Test email could not be sent. Check the alert address and your mailer (e.g. "
 "WP Mail SMTP)."
 msgstr ""
 
-#: includes/class-settings.php:495
+#: includes/class-settings.php:496
 msgid "Internal check executed."
 msgstr ""
 
-#: includes/class-settings.php:496
+#: includes/class-settings.php:497
 msgid "Diagnostics token generated."
 msgstr ""
 
-#: includes/class-settings.php:497
+#: includes/class-settings.php:498
 msgid ""
 "Diagnostics token is defined in wp-config.php and cannot be generated here."
 msgstr ""
 
-#: includes/class-settings.php:520
+#: includes/class-settings.php:521
 msgid "n/a on this host"
 msgstr ""
 
 #. translators: %d: duration in milliseconds
-#: includes/class-settings.php:565
+#: includes/class-settings.php:566
 #, php-format
 msgid "%d ms"
 msgid_plural "%d ms"
@@ -336,7 +336,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %.2f: duration in seconds
-#: includes/class-settings.php:572
+#: includes/class-settings.php:573
 #, php-format
 msgid "%.2f s"
 msgstr ""

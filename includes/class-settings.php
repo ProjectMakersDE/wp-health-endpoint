@@ -178,7 +178,7 @@ class Settings {
 
 	public function add_menu() {
 		add_menu_page(
-			__( 'Health Endpoint', 'health-endpoint' ),
+			__( 'ProjectMakers Health Endpoint', 'health-endpoint' ),
 			__( 'Health', 'health-endpoint' ),
 			self::CAPABILITY,
 			self::PAGE,
@@ -278,7 +278,7 @@ class Settings {
 			<div class="he-header">
 				<span class="dashicons dashicons-heart"></span>
 				<div>
-					<h1><?php esc_html_e( 'Health Endpoint', 'health-endpoint' ); ?></h1>
+					<h1><?php esc_html_e( 'ProjectMakers Health Endpoint', 'health-endpoint' ); ?></h1>
 					<p class="he-sub">
 						<?php esc_html_e( 'Uptime endpoint & server monitoring', 'health-endpoint' ); ?>
 					</p>
