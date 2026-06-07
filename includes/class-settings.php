@@ -34,6 +34,7 @@ class Settings {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ) );
 		add_action( 'admin_post_health_endpoint_test_email', array( $this, 'handle_test_email' ) );
 		add_action( 'admin_post_health_endpoint_run_now', array( $this, 'handle_run_now' ) );
+		add_action( 'admin_post_health_endpoint_generate_token', array( $this, 'handle_generate_token' ) );
 		add_filter( 'plugin_action_links_' . HEALTH_ENDPOINT_BASENAME, array( $this, 'action_links' ) );
 	}
 
@@ -46,6 +47,7 @@ class Settings {
 		return array(
 			'alert_email'        => '',
 			'monitoring_enabled' => 0,
+			'check_interval'     => 60,
 			'disk_threshold'     => 90,
 			'cpu_threshold'      => 80,
 			'cpu_minutes'        => 5,
@@ -54,7 +56,33 @@ class Settings {
 			'alert_cooldown'     => 60,
 			'recovery_email'     => 1,
 			'token'              => '',
-			'github_token'       => '',
+		);
+	}
+
+	public static function check_interval_options() {
+		return array( 60, 120, 300, 600, 900, 1800, 3600 );
+	}
+
+	public static function normalize_check_interval( $seconds ) {
+		$seconds = (int) $seconds;
+		return in_array( $seconds, self::check_interval_options(), true ) ? $seconds : 60;
+	}
+
+	public static function format_interval( $seconds ) {
+		$seconds = self::normalize_check_interval( $seconds );
+		if ( $seconds < 60 ) {
+			return sprintf(
+				/* translators: %d: number of seconds */
+				_n( '%d second', '%d seconds', $seconds, 'health-endpoint' ),
+				$seconds
+			);
+		}
+
+		$minutes = (int) round( $seconds / 60 );
+		return sprintf(
+			/* translators: %d: number of minutes */
+			_n( '%d minute', '%d minutes', $minutes, 'health-endpoint' ),
+			$minutes
 		);
 	}
 
@@ -68,7 +96,8 @@ class Settings {
 		if ( ! is_array( $stored ) ) {
 			$stored = array();
 		}
-		return wp_parse_args( $stored, self::defaults() );
+		$defaults = self::defaults();
+		return array_intersect_key( wp_parse_args( $stored, $defaults ), $defaults );
 	}
 
 	/**
@@ -117,6 +146,7 @@ class Settings {
 
 		$out['monitoring_enabled'] = empty( $in['monitoring_enabled'] ) ? 0 : 1;
 		$out['recovery_email']     = empty( $in['recovery_email'] ) ? 0 : 1;
+		$out['check_interval']     = self::normalize_check_interval( $in['check_interval'] ?? $d['check_interval'] );
 
 		$out['disk_threshold'] = $this->clamp_int( $in['disk_threshold'] ?? $d['disk_threshold'], 1, 100, $d['disk_threshold'] );
 		$out['cpu_threshold']  = $this->clamp_int( $in['cpu_threshold'] ?? $d['cpu_threshold'], 1, 1000, $d['cpu_threshold'] );
@@ -125,12 +155,11 @@ class Settings {
 		$out['ram_minutes']    = $this->clamp_int( $in['ram_minutes'] ?? $d['ram_minutes'], 1, 60, $d['ram_minutes'] );
 		$out['alert_cooldown'] = $this->clamp_int( $in['alert_cooldown'] ?? $d['alert_cooldown'], 0, 1440, $d['alert_cooldown'] );
 
-		$out['token']        = sanitize_text_field( (string) ( $in['token'] ?? '' ) );
-		$out['github_token'] = sanitize_text_field( (string) ( $in['github_token'] ?? '' ) );
+		$out['token'] = sanitize_text_field( (string) ( $in['token'] ?? '' ) );
 
 		// (Re)schedule or clear the monitoring cron to match the new state.
 		if ( $out['monitoring_enabled'] ) {
-			Monitor::instance()->maybe_schedule();
+			Monitor::instance()->sync_schedule( $out, true );
 		} else {
 			Monitor::unschedule();
 		}
@@ -203,6 +232,25 @@ class Settings {
 		exit;
 	}
 
+	public function handle_generate_token() {
+		if ( ! current_user_can( self::CAPABILITY ) ) {
+			wp_die( esc_html__( 'Insufficient permissions.', 'health-endpoint' ) );
+		}
+		check_admin_referer( 'health_endpoint_generate_token' );
+
+		if ( defined( 'HEALTH_ENDPOINT_TOKEN' ) && '' !== trim( (string) HEALTH_ENDPOINT_TOKEN ) ) {
+			wp_safe_redirect( add_query_arg( 'he_notice', 'token_locked', admin_url( 'admin.php?page=' . self::PAGE ) ) );
+			exit;
+		}
+
+		$s          = self::get();
+		$s['token'] = wp_generate_password( 48, false, false );
+		update_option( self::OPTION, $s, false );
+
+		wp_safe_redirect( add_query_arg( 'he_notice', 'token_generated', admin_url( 'admin.php?page=' . self::PAGE ) ) );
+		exit;
+	}
+
 	/**
 	 * Render the admin page.
 	 */
@@ -214,6 +262,7 @@ class Settings {
 		$s          = self::get();
 		$snapshot   = Monitor::instance()->snapshot();
 		$last_run   = (int) Monitor::instance()->last_run();
+		$last_duration_ms = Monitor::instance()->last_duration_ms();
 		$token_set  = '' !== self::token();
 		$token_lock = defined( 'HEALTH_ENDPOINT_TOKEN' ) && '' !== trim( (string) HEALTH_ENDPOINT_TOKEN );
 
@@ -278,6 +327,14 @@ class Settings {
 						if ( $last_run ) {
 							/* translators: %s: human time diff */
 							printf( esc_html__( 'Last internal check: %s ago', 'health-endpoint' ), esc_html( human_time_diff( $last_run ) ) );
+							if ( null !== $last_duration_ms ) {
+								echo '<br />';
+								printf(
+									/* translators: %s: formatted duration */
+									esc_html__( 'Last check duration: %s', 'health-endpoint' ),
+									esc_html( $this->format_duration( $last_duration_ms ) )
+								);
+							}
 						} else {
 							esc_html_e( 'Internal monitoring has not run yet.', 'health-endpoint' );
 						}
@@ -317,9 +374,22 @@ class Settings {
 								<td>
 									<label>
 										<input type="checkbox" name="<?php echo esc_attr( self::OPTION ); ?>[monitoring_enabled]" value="1" <?php checked( $s['monitoring_enabled'], 1 ); ?> />
-										<?php esc_html_e( 'Check the server roughly every minute and alert on breaches', 'health-endpoint' ); ?>
+										<?php esc_html_e( 'Check the server at the configured interval and alert on breaches', 'health-endpoint' ); ?>
 									</label>
-									<p class="description"><?php esc_html_e( 'Runs via WP-Cron. For reliable once-a-minute checks on low-traffic sites, set up a real server cron (see README).', 'health-endpoint' ); ?></p>
+									<p class="description"><?php esc_html_e( 'Runs via WP-Cron. For reliable checks on low-traffic sites, set up a real server cron (see README).', 'health-endpoint' ); ?></p>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><label for="he-interval"><?php esc_html_e( 'Check interval', 'health-endpoint' ); ?></label></th>
+								<td>
+									<select id="he-interval" name="<?php echo esc_attr( self::OPTION ); ?>[check_interval]">
+										<?php foreach ( self::check_interval_options() as $seconds ) : ?>
+											<option value="<?php echo esc_attr( $seconds ); ?>" <?php selected( (int) $s['check_interval'], (int) $seconds ); ?>>
+												<?php echo esc_html( self::format_interval( $seconds ) ); ?>
+											</option>
+										<?php endforeach; ?>
+									</select>
+									<p class="description"><?php esc_html_e( 'How often the internal database, disk, CPU, and RAM checks should run.', 'health-endpoint' ); ?></p>
 								</td>
 							</tr>
 							<tr>
@@ -377,19 +447,22 @@ class Settings {
 									<?php else : ?>
 										<input type="password" id="he-token" class="regular-text" name="<?php echo esc_attr( self::OPTION ); ?>[token]" value="<?php echo esc_attr( $s['token'] ); ?>" autocomplete="off" />
 										<p class="description"><?php esc_html_e( 'Unlocks the diagnostics payload. Leave empty to keep diagnostics off. For best security define HEALTH_ENDPOINT_TOKEN in wp-config.php instead.', 'health-endpoint' ); ?></p>
+										<p>
+											<button type="submit" class="button" form="he-generate-token-form"><?php esc_html_e( 'Generate token', 'health-endpoint' ); ?></button>
+										</p>
 									<?php endif; ?>
-								</td>
-							</tr>
-							<tr>
-								<th scope="row"><label for="he-gh"><?php esc_html_e( 'GitHub token (updates)', 'health-endpoint' ); ?></label></th>
-								<td>
-									<input type="password" id="he-gh" class="regular-text" name="<?php echo esc_attr( self::OPTION ); ?>[github_token]" value="<?php echo esc_attr( $s['github_token'] ); ?>" autocomplete="off" />
-									<p class="description"><?php esc_html_e( 'Only needed if the GitHub repo is private; use a fine-grained PAT with read access to the repo so WordPress can see and download new releases.', 'health-endpoint' ); ?></p>
 								</td>
 							</tr>
 						</table>
 						<?php submit_button(); ?>
 					</form>
+
+					<?php if ( ! $token_lock ) : ?>
+						<form id="he-generate-token-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="he-hidden-form">
+							<?php wp_nonce_field( 'health_endpoint_generate_token' ); ?>
+							<input type="hidden" name="action" value="health_endpoint_generate_token" />
+						</form>
+					<?php endif; ?>
 
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="he-inline">
 						<?php wp_nonce_field( 'health_endpoint_test_email' ); ?>
@@ -401,9 +474,12 @@ class Settings {
 			</div>
 
 			<div class="he-footer">
-				<?php esc_html_e( 'Health Endpoint', 'health-endpoint' ); ?>
-				&middot; <a href="https://github.com/ProjectMakersDE/wp-health-endpoint" target="_blank" rel="noopener">GitHub</a>
-				&middot; <a href="https://projectmakers.de" target="_blank" rel="noopener">ProjectMakers</a>
+				<em>
+					<?php esc_html_e( 'Made with', 'health-endpoint' ); ?>
+					<span class="he-heart" aria-label="<?php esc_attr_e( 'love', 'health-endpoint' ); ?>">&hearts;</span>
+					<?php esc_html_e( 'by', 'health-endpoint' ); ?>
+					<a href="https://projectmakers.de" target="_blank" rel="noopener">ProjectMakers</a>
+				</em>
 			</div>
 		</div>
 		<?php
@@ -415,9 +491,11 @@ class Settings {
 			return;
 		}
 		$map = array(
-			'testmail_ok'   => array( 'updated', __( 'Test email sent.', 'health-endpoint' ) ),
-			'testmail_fail' => array( 'error', __( 'Test email could not be sent. Check the alert address and your mailer (e.g. WP Mail SMTP).', 'health-endpoint' ) ),
-			'ran'           => array( 'updated', __( 'Internal check executed.', 'health-endpoint' ) ),
+			'testmail_ok'     => array( 'updated', __( 'Test email sent.', 'health-endpoint' ) ),
+			'testmail_fail'   => array( 'error', __( 'Test email could not be sent. Check the alert address and your mailer (e.g. WP Mail SMTP).', 'health-endpoint' ) ),
+			'ran'             => array( 'updated', __( 'Internal check executed.', 'health-endpoint' ) ),
+			'token_generated' => array( 'updated', __( 'Diagnostics token generated.', 'health-endpoint' ) ),
+			'token_locked'    => array( 'error', __( 'Diagnostics token is defined in wp-config.php and cannot be generated here.', 'health-endpoint' ) ),
 		);
 		if ( ! isset( $map[ $notice ] ) ) {
 			return;
@@ -477,6 +555,23 @@ class Settings {
 			(int) $current,
 			(int) $min,
 			(int) $max
+		);
+	}
+
+	private function format_duration( $milliseconds ) {
+		$milliseconds = max( 0, (int) $milliseconds );
+		if ( $milliseconds < 1000 ) {
+			return sprintf(
+				/* translators: %d: duration in milliseconds */
+				_n( '%d ms', '%d ms', $milliseconds, 'health-endpoint' ),
+				$milliseconds
+			);
+		}
+
+		return sprintf(
+			/* translators: %.2f: duration in seconds */
+			__( '%.2f s', 'health-endpoint' ),
+			$milliseconds / 1000
 		);
 	}
 }

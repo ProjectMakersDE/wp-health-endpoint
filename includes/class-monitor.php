@@ -1,8 +1,8 @@
 <?php
 /**
- * Internal server monitoring: a ~1-minute cron samples DB/disk/CPU/RAM, keeps a
- * short rolling history for sustained-breach detection, and emails alerts
- * (with cooldown + optional recovery notice).
+ * Internal server monitoring: cron samples DB/disk/CPU/RAM on a configurable
+ * interval, keeps a short rolling history for sustained-breach detection, and
+ * sends email alerts (with cooldown + optional recovery notice).
  *
  * @package HealthEndpoint
  */
@@ -17,7 +17,7 @@ class Monitor {
 
 	const STATE     = 'health_endpoint_state';
 	const CRON_HOOK = 'health_endpoint_cron';
-	const SCHEDULE  = 'health_endpoint_minute';
+	const DEFAULT_INTERVAL = 60;
 	const MAX_SAMPLES = 120;
 	const MAX_AGE     = 5400; // 90 min in seconds.
 	const DB_CONFIRM    = 2;  // consecutive failed samples before a DB alert (debounce).
@@ -42,29 +42,59 @@ class Monitor {
 	}
 
 	public function add_schedule( $schedules ) {
-		if ( ! isset( $schedules[ self::SCHEDULE ] ) ) {
-			$schedules[ self::SCHEDULE ] = array(
-				'interval' => 60,
-				'display'  => __( 'Every minute (Health Endpoint)', 'health-endpoint' ),
-			);
+		foreach ( Settings::check_interval_options() as $seconds ) {
+			$schedule = self::schedule_name( $seconds );
+			if ( ! isset( $schedules[ $schedule ] ) ) {
+				$schedules[ $schedule ] = array(
+					'interval' => (int) $seconds,
+					'display'  => sprintf(
+						/* translators: %s: interval label, e.g. "5 minutes" */
+						__( 'Every %s (Health Endpoint)', 'health-endpoint' ),
+						Settings::format_interval( $seconds )
+					),
+				);
+			}
 		}
 		return $schedules;
 	}
 
+	private static function schedule_name( $seconds ) {
+		return 'health_endpoint_' . (int) $seconds . 's';
+	}
+
 	/**
-	 * Ensure the cron event exists when monitoring is enabled; remove it otherwise.
+	 * Ensure the cron event matches the current monitoring settings.
+	 *
+	 * @param array|null $settings Optional settings array to use instead of saved options.
+	 * @param bool       $force    Whether to clear and recreate the event even if one exists.
 	 */
-	public function maybe_schedule() {
-		$s = Settings::get();
+	public function sync_schedule( $settings = null, $force = false ) {
+		$s = is_array( $settings ) ? $settings : Settings::get();
 
 		if ( empty( $s['monitoring_enabled'] ) ) {
 			self::unschedule();
 			return;
 		}
 
-		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
-			wp_schedule_event( time() + 60, self::SCHEDULE, self::CRON_HOOK );
+		$interval = Settings::normalize_check_interval( $s['check_interval'] ?? self::DEFAULT_INTERVAL );
+		$schedule = self::schedule_name( $interval );
+		$current  = wp_next_scheduled( self::CRON_HOOK );
+
+		if ( function_exists( 'wp_get_schedule' ) && $current && $schedule !== wp_get_schedule( self::CRON_HOOK ) ) {
+			$force = true;
 		}
+
+		if ( $force || ! $current ) {
+			self::unschedule();
+			wp_schedule_event( time() + $interval, $schedule, self::CRON_HOOK );
+		}
+	}
+
+	/**
+	 * Ensure the cron event exists when monitoring is enabled; remove it otherwise.
+	 */
+	public function maybe_schedule() {
+		$this->sync_schedule();
 	}
 
 	public static function unschedule() {
@@ -83,10 +113,11 @@ class Monitor {
 		return wp_parse_args(
 			$state,
 			array(
-				'last_run' => 0,
-				'samples'  => array(),
-				'alerts'   => array(),
-				'snapshot' => array(),
+				'last_run'         => 0,
+				'last_duration_ms' => null,
+				'samples'          => array(),
+				'alerts'           => array(),
+				'snapshot'         => array(),
 			)
 		);
 	}
@@ -98,6 +129,11 @@ class Monitor {
 	public function last_run() {
 		$s = $this->state();
 		return (int) $s['last_run'];
+	}
+
+	public function last_duration_ms() {
+		$s = $this->state();
+		return isset( $s['last_duration_ms'] ) && is_numeric( $s['last_duration_ms'] ) ? (int) $s['last_duration_ms'] : null;
 	}
 
 	/**
@@ -120,9 +156,10 @@ class Monitor {
 	 * @param bool $manual True when triggered from the admin "Run now" button.
 	 */
 	public function run_checks( $manual = false ) {
-		$s     = Settings::get();
-		$now   = time();
-		$state = $this->state();
+		$started = microtime( true );
+		$s       = Settings::get();
+		$now     = time();
+		$state   = $this->state();
 
 		$db   = check_db();
 		$disk = disk_usage();
@@ -140,6 +177,7 @@ class Monitor {
 		// "Run now" is a read-only diagnostic: refresh the live snapshot for the
 		// admin panel but never mutate history or dispatch alert emails.
 		if ( $manual ) {
+			$state['last_duration_ms'] = $this->elapsed_ms( $started );
 			$this->save_state( $state );
 			return;
 		}
@@ -192,8 +230,13 @@ class Monitor {
 		}
 
 		$state['alerts'] = $this->reconcile_alerts( $state['alerts'], $breaches, $s, $now );
+		$state['last_duration_ms'] = $this->elapsed_ms( $started );
 
 		$this->save_state( $state );
+	}
+
+	private function elapsed_ms( $started ) {
+		return max( 0, (int) round( ( microtime( true ) - (float) $started ) * 1000 ) );
 	}
 
 	private function trim_samples( $samples, $now ) {

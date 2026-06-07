@@ -157,16 +157,33 @@
 	margin-top: 10px;
 }
 
+.he-hidden-form {
+	display: none;
+}
+
 .he-footer {
-	margin: 22px 0 8px;
-	padding-top: 14px;
+	margin: 26px 0 8px;
+	padding-top: 18px;
 	border-top: 1px solid #e2e4e9;
 	color: #6b7280;
-	font-size: 12px;
+	font-size: 13px;
+	text-align: center;
 }
 
 .he-footer a {
+	color: #33879e;
+	font-weight: 700;
 	text-decoration: none;
+}
+
+.he-footer a:hover {
+	color: #256b80;
+}
+
+.he-heart {
+	color: #d63638;
+	font-style: normal;
+	font-weight: 700;
 }
 
 @media screen and (max-width: 782px) {

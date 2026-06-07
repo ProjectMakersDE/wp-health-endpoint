@@ -30,10 +30,10 @@ The plugin is designed for public open-source use: public responses stay minimal
 - Query-string and REST fallbacks for hosts where pretty permalinks are unavailable.
 - Minimal public JSON payload: `status`, `db`, and `time`.
 - Optional token-protected diagnostics payload with plugin, WordPress, PHP, database latency, disk, CPU, and RAM details.
-- Optional internal WP-Cron monitoring for database, disk, CPU, and RAM.
+- Optional internal WP-Cron monitoring for database, disk, CPU, and RAM with a configurable check interval.
 - Email alerts with sustained-threshold detection, cooldown, and recovery notifications.
-- Admin page for live status, endpoint URLs, monitoring settings, diagnostics token, and updater token.
-- GitHub Releases based self-updater for public repositories and private forks.
+- Admin page for live status, endpoint URLs, monitoring settings, diagnostics token, and token generation.
+- GitHub Releases based self-updater for the public ProjectMakers release repository.
 - Optional `db-error.php` drop-in for consistent health responses when the database is unavailable during WordPress bootstrap.
 - Translation-ready WordPress strings through the `health-endpoint` text domain.
 
@@ -67,7 +67,7 @@ After activation, WordPress shows a **Health** menu item in the admin area. The 
 
 - Live status for database, disk usage, CPU load, and RAM usage.
 - Endpoint URLs for the current site.
-- Monitoring settings, alert recipients, thresholds, cooldown, diagnostics token, and optional GitHub token.
+- Monitoring settings, alert recipients, check interval, thresholds, cooldown, diagnostics token, and token generation.
 - Manual **Run check now** and **Send test email** actions.
 
 ## Endpoints
@@ -113,7 +113,7 @@ Recommended settings:
 
 ## Internal Monitoring and Email Alerts
 
-Enable **Internal monitoring** on the admin page and configure one or more alert email addresses. The plugin then samples the server roughly once per minute and alerts when a problem is detected.
+Enable **Internal monitoring** on the admin page and configure one or more alert email addresses. The plugin then samples the server at the configured interval and alerts when a problem is detected. The default interval is one minute.
 
 | Check | Trigger | Configurable |
 |---|---|---|
@@ -125,6 +125,7 @@ Enable **Internal monitoring** on the admin page and configure one or more alert
 Notes:
 
 - Sustained checks keep a short rolling history, so a single CPU or RAM spike does not trigger an alert.
+- The check interval can be set to 1, 2, 5, 10, 15, 30, or 60 minutes.
 - CPU percentage is the 1-minute load average divided by detected CPU cores.
 - Some shared hosts disable `sys_getloadavg` or `/proc`; unsupported CPU/RAM metrics are shown as `n/a` and skipped.
 - Cooldown controls repeat alerts for the same problem.
@@ -136,7 +137,7 @@ Alert delivery uses `wp_mail()`. For production sites, configure a reliable SMTP
 
 ## Real Cron Setup
 
-WP-Cron only runs when WordPress receives traffic. For reliable once-per-minute checks on low-traffic sites, disable the built-in pseudo cron and trigger WP-Cron from the server.
+WP-Cron only runs when WordPress receives traffic. For reliable checks on low-traffic sites, disable the built-in pseudo cron and trigger WP-Cron from the server. The server cron should run at least as often as the shortest interval you plan to use.
 
 In `wp-config.php`:
 
@@ -166,7 +167,7 @@ Set a token in `wp-config.php`:
 define( 'HEALTH_ENDPOINT_TOKEN', 'replace-with-a-long-random-secret' );
 ```
 
-Or set it on the plugin admin page. The constant takes precedence over the stored option.
+Or set it on the plugin admin page. The admin page also has a **Generate token** button. The constant takes precedence over the stored option.
 
 Query diagnostics with the `X-Health-Token` header:
 
@@ -188,7 +189,7 @@ Example diagnostics payload:
   "db": "connected",
   "time": "2026-06-04T09:12:00+00:00",
   "detail": {
-    "plugin_version": "2.1.1",
+    "plugin_version": "2.1.2",
     "php_version": "8.4.0",
     "wp_version": "6.7",
     "object_cache": "external",
@@ -216,23 +217,15 @@ Release workflow:
 1. Tag a new version and push the tag.
 
    ```bash
-   git tag v2.1.1
-   git push origin v2.1.1
+   git tag v2.1.3
+   git push origin v2.1.3
    ```
 
 2. The included GitHub Action builds `health-endpoint.zip`.
 3. The action publishes the ZIP as a GitHub Release asset.
 4. WordPress detects the release during its normal update checks and offers the update in **Plugins** and **Dashboard > Updates**.
 
-For a public repository, no GitHub token is required.
-
-For a private fork, WordPress needs read access to list releases and download assets. Configure a fine-grained GitHub personal access token with read-only access to that repository on the admin page, or define it in `wp-config.php`:
-
-```php
-define( 'HEALTH_ENDPOINT_GITHUB_TOKEN', 'replace-with-read-only-github-token' );
-```
-
-The updater resolves GitHub's authenticated asset redirect itself and does not forward the token to the final CDN/S3 download URL.
+No GitHub token is required. The plugin checks the public ProjectMakers release repository and downloads the public release ZIP asset.
 
 ## HTTP Status Codes
 
@@ -265,7 +258,6 @@ Normal visitors receive a simple "Service temporarily unavailable" page.
 | `HEALTH_ENDPOINT_TOKEN` | Diagnostics token. Takes precedence over the admin setting. |
 | `HEALTH_ENDPOINT_SLUG` | Pretty endpoint slug. Default: `health`. |
 | `HEALTH_ENDPOINT_GITHUB` | GitHub repository in `owner/repo` format. Default: `ProjectMakersDE/wp-health-endpoint`. |
-| `HEALTH_ENDPOINT_GITHUB_TOKEN` | Optional token for private forks. |
 | `DISABLE_WP_CRON` | Disable WP-Cron when using real server cron. |
 
 ### Filters
@@ -295,7 +287,6 @@ add_filter( 'health_endpoint_detail', function ( $detail ) {
 - Prefer the `X-Health-Token` header over `?token=` in production.
 - Rotate a token if it was ever placed in a URL, log file, ticket, chat, or screenshot.
 - Use a long random token, for example `openssl rand -hex 24`.
-- Use the narrowest possible GitHub token scope for private forks.
 - Never commit production tokens, credentials, customer names, internal hostnames, or real customer URLs to this repository.
 
 ## Caching Notes
@@ -326,6 +317,14 @@ Before making a fork public, verify:
 - Release ZIPs exclude `.git`, `.github`, local build output, and development-only files.
 
 ## Changelog
+
+### 2.1.2
+
+- Removed GitHub token settings because updates use the public ProjectMakers release repository.
+- Added a configurable internal monitoring interval.
+- Added last-check duration reporting in the admin live status panel.
+- Added server-side diagnostics token generation.
+- Updated the admin footer to the ProjectMakers "Made with love" style.
 
 ### 2.1.1
 
